@@ -3,9 +3,11 @@ NEEDS TO BE UPDATED A BIT
 This is a simple project to elaborate how to deploy a Machine Learning model using Flask API
 
 ### Prerequisites
-You must have Scikit Learn, Pandas (for Machine Leraning Model) and Flask (for API) installed.
+Run the pip command to install necessary libraries.
 
+```sh
 pip install requirements.txt
+``` 
 
 ### Project Structure
 This project has four major parts :
