@@ -1,0 +1,4974 @@
+kind: project
+metadata:
+  name: widsdb2
+spec:
+  functions:
+  - name: prep
+    spec:
+      kind: job
+      metadata:
+        name: prep
+        tag: ''
+        project: widsdb2
+      spec:
+        command: ''
+        args: []
+        image: mlrun/ml-models
+        env:
+        - name: V3IO_API
+          value: ''
+        - name: V3IO_USERNAME
+          value: ''
+        - name: V3IO_ACCESS_KEY
+          value: ''
+        default_handler: trdata_prep
+        entry_points:
+          trdata_prep:
+            name: trdata_prep
+            doc: "process a raw icu data file\n\n* `encoded` is input for a cross\
+              \ validation and training function\n\nwidsutil module has various transform\
+              \ functions\nsteps (not necessarily in correct order, some parallel)\n\
+              * column name maps\n* deal with nans and other types of missings/junk\n\
+              * label encode binary and ordinal category columns\n* create category\
+              \ ranges from numerical columns\nAnd finally,\n* test\n\n\nTODO: \n\
+              \    * parallelize where possible\n    * more abstraction (more parameters,\
+              \ chain sklearn transformers)\n    * convert to marketplace function"
+            parameters:
+            - name: context
+              type: MLClientCtx
+              doc: the function execution context
+              default: ''
+            - name: src
+              type: DataItem
+              doc: an artifact or file path
+              default: ''
+            - name: file_ext
+              type: str
+              doc: file type for artifacts
+              default: csv
+            - name: train_enc
+              type: str
+              doc: key of encoded data table in artifact store
+              default: train_enc
+            outputs:
+            - default: ''
+            lineno: 22
+        description: ''
+        build:
+          functionSourceCode: IyBHZW5lcmF0ZWQgYnkgbnVjbGlvLmV4cG9ydC5OdWNsaW9FeHBvcnRlcgoKCmltcG9ydCBvcwoKaW1wb3J0IHN5cwpzeXMucGF0aC5hcHBlbmQoJy92M2lvL3Byb2plY3RzL3dpZHNkYjIvdXRpbCcpCgoKaW1wb3J0IGpzb24KaW1wb3J0IHBhbmRhcyBhcyBwZAppbXBvcnQgbnVtcHkgYXMgbnAKZnJvbSBjb2xsZWN0aW9ucyBpbXBvcnQgZGVmYXVsdGRpY3QKaW1wb3J0IHdpZHN1dGlsIGFzIHV0aWwKZnJvbSBjbG91ZHBpY2tsZSBpbXBvcnQgZHVtcHMsIGR1bXAsIGxvYWQKCgpmcm9tIG1scnVuLmV4ZWN1dGlvbiBpbXBvcnQgTUxDbGllbnRDdHgKZnJvbSBtbHJ1bi5kYXRhc3RvcmUgaW1wb3J0IERhdGFJdGVtCgoKZGVmIHRyZGF0YV9wcmVwKAogICAgY29udGV4dDpNTENsaWVudEN0eCwgCiAgICBzcmM6IERhdGFJdGVtLAogICAgZmlsZV9leHQ6IHN0ciA9ICJjc3YiLAogICAgdHJhaW5fZW5jOiBzdHIgPSAidHJhaW5fZW5jIgopOgogICAgIiIicHJvY2VzcyBhIHJhdyBpY3UgZGF0YSBmaWxlCiAgICAKICAgICogYGVuY29kZWRgIGlzIGlucHV0IGZvciBhIGNyb3NzIHZhbGlkYXRpb24gYW5kIHRyYWluaW5nIGZ1bmN0aW9uCiAgICAKICAgIHdpZHN1dGlsIG1vZHVsZSBoYXMgdmFyaW91cyB0cmFuc2Zvcm0gZnVuY3Rpb25zCiAgICBzdGVwcyAobm90IG5lY2Vzc2FyaWx5IGluIGNvcnJlY3Qgb3JkZXIsIHNvbWUgcGFyYWxsZWwpCiAgICAqIGNvbHVtbiBuYW1lIG1hcHMKICAgICogZGVhbCB3aXRoIG5hbnMgYW5kIG90aGVyIHR5cGVzIG9mIG1pc3NpbmdzL2p1bmsKICAgICogbGFiZWwgZW5jb2RlIGJpbmFyeSBhbmQgb3JkaW5hbCBjYXRlZ29yeSBjb2x1bW5zCiAgICAqIGNyZWF0ZSBjYXRlZ29yeSByYW5nZXMgZnJvbSBudW1lcmljYWwgY29sdW1ucwogICAgQW5kIGZpbmFsbHksCiAgICAqIHRlc3QKICAgIAogICAKICAgIFRPRE86IAogICAgICAgICogcGFyYWxsZWxpemUgd2hlcmUgcG9zc2libGUKICAgICAgICAqIG1vcmUgYWJzdHJhY3Rpb24gKG1vcmUgcGFyYW1ldGVycywgY2hhaW4gc2tsZWFybiB0cmFuc2Zvcm1lcnMpCiAgICAgICAgKiBjb252ZXJ0IHRvIG1hcmtldHBsYWNlIGZ1bmN0aW9uCiAgICAgICAgCiAgICA6cGFyYW0gY29udGV4dDogICAgICAgICAgdGhlIGZ1bmN0aW9uIGV4ZWN1dGlvbiBjb250ZXh0CiAgICA6cGFyYW0gc3JjOiAgICAgICAgICAgICAgYW4gYXJ0aWZhY3Qgb3IgZmlsZSBwYXRoCiAgICA6cGFyYW0gZmlsZV9leHQ6ICAgICAgICAgZmlsZSB0eXBlIGZvciBhcnRpZmFjdHMKICAgIDpwYXJhbSB0cmFpbl9lbmM6ICAgICAgICBrZXkgb2YgZW5jb2RlZCBkYXRhIHRhYmxlIGluIGFydGlmYWN0IHN0b3JlCiAgICAiIiIKICAgIGRmID0gc3JjLmFzX2RmKCkKICAgIAogICAgZGF0YXByZXByb2Nlc3MgPXV0aWwuRGF0YVByZXByb2Nlc3MoZGYpCiAgICBkZiA9IGRhdGFwcmVwcm9jZXNzLnByZXByb2Nlc3MoKQoKICAgIGRmLmZpbGxuYShkZi5tZWFuKCksIGlucGxhY2U9VHJ1ZSkKCiAgICBjb250ZXh0LmxvZ19kYXRhc2V0KHRyYWluX2VuYywgZGY9ZGYsIGZvcm1hdD1maWxlX2V4dCwgaW5kZXg9RmFsc2UpCgo=
+          commands: []
+          code_origin: prep.ipynb
+        affinity: null
+      verbose: false
+  - name: train-wids
+    spec:
+      kind: job
+      metadata:
+        name: train-wids
+        tag: latest
+        hash: ac57b01232e7d6bf0ec08e68a6f87cf64728e063
+        project: widsdb2
+        categories: []
+        updated: '2021-07-01T11:08:37.142283+00:00'
+      spec:
+        command: ''
+        args: []
+        image: mlrun/ml-models
+        env:
+        - name: V3IO_API
+          value: ''
+        - name: V3IO_USERNAME
+          value: ''
+        - name: V3IO_ACCESS_KEY
+          value: ''
+        default_handler: train_wids
+        entry_points:
+          train_wids:
+            name: train_wids
+            doc: ''
+            parameters:
+            - name: context
+              type: MLClientCtx
+              default: ''
+            - name: dataset
+              type: DataItem
+              default: ''
+            - name: label_column
+              type: str
+              default: labels
+            outputs:
+            - default: ''
+            lineno: 39
+        description: ''
+        build:
+          functionSourceCode: IyBHZW5lcmF0ZWQgYnkgbnVjbGlvLmV4cG9ydC5OdWNsaW9FeHBvcnRlcgoKZnJvbSBza2xlYXJuIGltcG9ydCBsaW5lYXJfbW9kZWwKZnJvbSBza2xlYXJuIGltcG9ydCBkYXRhc2V0cwpmcm9tIHNrbGVhcm4ubW9kZWxfc2VsZWN0aW9uIGltcG9ydCB0cmFpbl90ZXN0X3NwbGl0CmZyb20gY2xvdWRwaWNrbGUgaW1wb3J0IGR1bXBzCmltcG9ydCBwYW5kYXMgYXMgcGQKCmZyb20gbWxydW4uZXhlY3V0aW9uIGltcG9ydCBNTENsaWVudEN0eApmcm9tIG1scnVuLmRhdGFzdG9yZSBpbXBvcnQgRGF0YUl0ZW0KZnJvbSBtbHJ1bi5tbHV0aWxzLmRhdGEgaW1wb3J0IGdldF9zYW1wbGUKZnJvbSBtbHJ1bi5tbHV0aWxzLnBsb3RzIGltcG9ydCBldmFsX21vZGVsX3YyCmZyb20gc2NpcHkuc3RhdHMgaW1wb3J0IGt1cnRvc2lzLCBpcXIsIHNrZXcsIGdtZWFuLCBobWVhbiwgbW9kZSwgbm9ybWFsdGVzdCwgc2hhcGlybywga3NfMnNhbXAKZnJvbSBza2xlYXJuLnByZXByb2Nlc3NpbmcgaW1wb3J0IFN0YW5kYXJkU2NhbGVyLCBPbmVIb3RFbmNvZGVyLCBMYWJlbEVuY29kZXIsIE9yZGluYWxFbmNvZGVyCmZyb20gbG9nZ2luZyBpbXBvcnQgZ2V0TG9nZ2VyLCBGb3JtYXR0ZXIsIFN0cmVhbUhhbmRsZXIsIEZpbGVIYW5kbGVyLCBJTkZPLCBFUlJPUgpmcm9tIHNrbGVhcm4uY29tcG9zZSBpbXBvcnQgbWFrZV9jb2x1bW5fc2VsZWN0b3IgYXMgc2VsZWN0b3IKZnJvbSBza2xlYXJuLmNvbXBvc2UgaW1wb3J0IENvbHVtblRyYW5zZm9ybWVyCmZyb20gc2tsZWFybi5tZXRyaWNzIGltcG9ydCByb2NfYXVjX3Njb3JlCmZyb20gc2tsZWFybi5tb2RlbF9zZWxlY3Rpb24gaW1wb3J0IEtGb2xkCmZyb20gc2tsZWFybi5pbXB1dGUgaW1wb3J0IFNpbXBsZUltcHV0ZXIKZnJvbSBza2xlYXJuLnBpcGVsaW5lIGltcG9ydCBQaXBlbGluZQppbXBvcnQgb3MsIGdjLCBzeXMsIHRpbWUsIHJhbmRvbSwgbWF0aApmcm9tIGNvbnRleHRsaWIgaW1wb3J0IGNvbnRleHRtYW5hZ2VyCmZyb20gbWF0cGxvdGxpYiBpbXBvcnQgcHlwbG90IGFzIHBsdApmcm9tIElQeXRob24uZGlzcGxheSBpbXBvcnQgZGlzcGxheQpmcm9tIHNjaXB5IGltcG9ydCBzdGF0cywgc3BlY2lhbApmcm9tIHNrbGVhcm4gaW1wb3J0IHNldF9jb25maWcKZnJvbSBmdW5jdG9vbHMgaW1wb3J0IHBhcnRpYWwKaW1wb3J0IGxpZ2h0Z2JtIGFzIGxnYgppbXBvcnQgc2VhYm9ybiBhcyBzbnMKaW1wb3J0IHBhbmRhcyBhcyBwZAppbXBvcnQgdHlwaW5nIGFzIHRwCmltcG9ydCBudW1weSBhcyBucAppbXBvcnQgd2FybmluZ3MKCgp3YXJuaW5ncy5zaW1wbGVmaWx0ZXIoJ2lnbm9yZScpCgpkZWYgdHJhaW5fd2lkcyhjb250ZXh0OiBNTENsaWVudEN0eCwKICAgICAgICAgICAgICAgZGF0YXNldDogRGF0YUl0ZW0sCiAgICAgICAgICAgICAgIGxhYmVsX2NvbHVtbjogc3RyID0gImxhYmVscyIpOgogICAgCiAgICByYXcsIGxhYmVscywgaGVhZGVyID0gZ2V0X3NhbXBsZShkYXRhc2V0LCBzYW1wbGU9LTEsIGxhYmVsPWxhYmVsX2NvbHVtbikKICAgIHByaW50KHJhdy5zaGFwZSkKICAgIFhfdHJhaW4sIFhfdGVzdCwgeV90cmFpbiwgeV90ZXN0ID0gdHJhaW5fdGVzdF9zcGxpdCgKICAgICAgICByYXcsIGxhYmVscywgdGVzdF9zaXplPTAuMiwgcmFuZG9tX3N0YXRlPTQyKQogICAgCiAgICBjb250ZXh0LmxvZ19kYXRhc2V0KCd0cmFpbl9zZXQnLCAKICAgICAgICAgICAgICAgICAgICAgICAgZGY9cGQuY29uY2F0KFtYX3RyYWluLCB5X3RyYWluLnRvX2ZyYW1lKCldLCBheGlzPTEpLAogICAgICAgICAgICAgICAgICAgICAgICBmb3JtYXQ9J2NzdicsIGluZGV4PUZhbHNlLCAKICAgICAgICAgICAgICAgICAgICAgICAgYXJ0aWZhY3RfcGF0aD1jb250ZXh0LmFydGlmYWN0X3N1YnBhdGgoJ2RhdGEnKSkKCiAgICBjb250ZXh0LmxvZ19kYXRhc2V0KCd0ZXN0X3NldCcsIAogICAgICAgICAgICAgICAgICAgICAgICBkZj1wZC5jb25jYXQoW1hfdGVzdCwgeV90ZXN0LnRvX2ZyYW1lKCldLCBheGlzPTEpLAogICAgICAgICAgICAgICAgICAgICAgICBmb3JtYXQ9J2NzdicsIGluZGV4PUZhbHNlLCAKICAgICAgICAgICAgICAgICAgICAgICAgbGFiZWxzPXsiZGF0YS10eXBlIjogImhlbGQtb3V0In0sCiAgICAgICAgICAgICAgICAgICAgICAgIGFydGlmYWN0X3BhdGg9Y29udGV4dC5hcnRpZmFjdF9zdWJwYXRoKCdkYXRhJykpCiAgIAoKICAgIGxwYXJhbXMgPSB7fQoKICAgIGV2YWxzID0ge30KICAgIGV2YWxzWydsZ2InXSA9IHt9CiAgICBscGFyYW1zID0ge30KCiAgICBzZWVkcyA9IFswLCAxXQogICAgbmZvbGQgPSBbNSwgNV0KICAgIHN0cmF0aWZpZWQ9W0ZhbHNlLCBGYWxzZV0KICAgIHNodWZmbGU9W1RydWUsIFRydWVdCiAgICBuX2VzdGltYXRvcnMgPSAzMDAwMAogICAgZWFybHlfc3RvcHBpbmdfcm91bmRzID0gMzAwCiAgICB2ZXJib3NlX2V2YWwgPSAyCiAgICBsZWFybmluZ19yYXRlID0gMC4wMQogICAgcmVnX2FscGhhID0gWzAuNCwgMV0KICAgIHJlZ19sYW1iZGEgPSBbMC43LCAxXQogICAgc3Vic2FtcGxlID0gWzAuNDUsIDFdCiAgICBjb2xzYW1wbGVfYnl0cmVlID0gWzAuMywgMC4yMjVdCiAgICBtYXhfZGVwdGggPSAtMQogICAgdmVyYm9zZSA9IDQKICAgIG5fam9icyA9IDQKICAgIAogICAgbHBhcmFtcyA9IGRpY3QoYm9vc3RpbmdfdHlwZT0nZ2JkdCcsCiAgICAgICAgICAgICAgIG9iamVjdGl2ZT0nYmluYXJ5JywKICAgICAgICAgICAgICAgbWV0cmljPSdhdWMnLAogICAgICAgICAgICAgICBsZWFybmluZ19yYXRlPSBsZWFybmluZ19yYXRlLAogICAgICAgICAgICAgICBudW1fbGVhdmVzPSAyMDAsCiAgICAgICAgICAgICAgIG1heF9iaW49NTAwLAogICAgICAgICAgICAgICBtaW5fY2hpbGRfd2VpZ2h0PSAwLjAzNSwKICAgICAgICAgICAgICAgc3Vic2FtcGxlPSBzdWJzYW1wbGVbMF0sCiAgICAgICAgICAgICAgIGNvbHNhbXBsZV9ieXRyZWU9IGNvbHNhbXBsZV9ieXRyZWVbMF0sCiAgICAgICAgICAgICAgIG1pbl9kYXRhX2luX2xlYWY9IDE1MCwKICAgICAgICAgICAgICAgbWF4X2RlcHRoPSBtYXhfZGVwdGgsCiAgICAgICAgICAgICAgIGJhZ2dpbmdfc2VlZD0gc2VlZHNbMF0sCiAgICAgICAgICAgICAgIHJlZ19hbHBoYT0gcmVnX2FscGhhWzBdLAogICAgICAgICAgICAgICByZWdfbGFtYmRhPSByZWdfbGFtYmRhWzBdLAogICAgICAgICAgICAgICB2ZXJib3NlPSB2ZXJib3NlLAogICAgICAgICAgICAgICBzZWVkPSBzZWVkc1swXSwKICAgICAgICAgICAgICAgbl9qb2JzPSBuX2pvYnMsKQoKICAgIGV2YWxzX3Jlc3VsdCA9IHt9CiAgICB0ZXN0X3ByZWRzID0gbnAuemVyb3MobGVuKFhfdGVzdCkpICAgIAogICAgZHRyYWluID0gbGdiLkRhdGFzZXQoWF90cmFpbiwgeV90cmFpbikKICAgIGR0ZXN0ID0gbGdiLkRhdGFzZXQoWF90ZXN0LCBsYWJlbD15X3Rlc3QpCiAgICAKICAgIHRlc3RsZW4gPSBYX3Rlc3Quc2hhcGVbMF0KICAgIAogICAgc2VlZCA9IHNlZWRzWzBdCiAgICBwcmludChmJ1RyYWluaW5nIE1vZGVsIHdpdGggU0VFRCA6IHtzZWVkfScpCiAgICBpPTAKICAgIG1vZGVsID0gbGdiLnRyYWluKGxwYXJhbXMsIGR0cmFpbiwgMTAwLCB2YWxpZF9zZXRzPWR0ZXN0LCBlYXJseV9zdG9wcGluZ19yb3VuZHM9NSwgZXZhbHNfcmVzdWx0PWV2YWxzX3Jlc3VsdCkKICAgIG1vZGVsLnNhdmVfbW9kZWwoJ21vZGVsLnR4dCcsIG51bV9pdGVyYXRpb249bW9kZWwuYmVzdF9pdGVyYXRpb24pCiAgICAKICAgCiAgIAogICAgCiAgICBwcmVkID0gbW9kZWwucHJlZGljdChYX3Rlc3QpCiAgICAKCiAgICBjb250ZXh0LmxvZ19tb2RlbCgibW9kZWwiLAogICAgICAgICAgICAgICAgICAgICAgYm9keT1kdW1wcyhtb2RlbCksCiAgICAgICAgICAgICAgICAgICAgICBtb2RlbF9maWxlPSJtb2RlbC5wa2wiLAogICAgICAgICAgICAgICAgICAgICAgbWV0cmljcz1jb250ZXh0LnJlc3VsdHMsCiAgICAgICAgICAgICAgICAgICAgICBsYWJlbHM9eyJjbGFzcyI6ICJsaWdodGdibSJ9KQogICAgCgo=
+          commands:
+          - pip install lightgbm
+          code_origin: train_wids.ipynb
+        affinity: null
+      verbose: false
+  - name: describe
+    spec:
+      kind: job
+      metadata:
+        name: describe
+        tag: ''
+        hash: 960a50becba96756596edff8ffc8c119ebe887a9
+        project: widsdb2
+        labels:
+          author: Iguazio
+        categories:
+        - analysis
+      spec:
+        command: ''
+        args: []
+        image: mlrun/mlrun
+        env:
+        - name: V3IO_API
+          value: ''
+        - name: V3IO_USERNAME
+          value: ''
+        - name: V3IO_ACCESS_KEY
+          value: ''
+        default_handler: summarize
+        entry_points:
+          summarize:
+            name: summarize
+            doc: Summarize a table
+            parameters:
+            - name: context
+              type: MLClientCtx
+              doc: the function context
+              default: ''
+            - name: table
+              type: DataItem
+              doc: MLRun input pointing to pandas dataframe (csv/parquet file path)
+              default: ''
+            - name: label_column
+              type: str
+              doc: ground truth column label
+              default: null
+            - name: class_labels
+              type: List[str]
+              doc: label for each class in tables and plots
+              default: []
+            - name: plot_hist
+              type: bool
+              doc: (True) set this to False for large tables
+              default: true
+            - name: plots_dest
+              type: str
+              doc: destination folder of summary plots (relative to artifact_path)
+              default: plots
+            - name: update_dataset
+              doc: when the table is a registered dataset update the charts in-place
+              default: false
+            outputs:
+            - default: ''
+            lineno: 21
+        description: describe and visualizes dataset stats
+        build:
+          functionSourceCode: IyBHZW5lcmF0ZWQgYnkgbnVjbGlvLmV4cG9ydC5OdWNsaW9FeHBvcnRlcgoKaW1wb3J0IHdhcm5pbmdzCndhcm5pbmdzLnNpbXBsZWZpbHRlcihhY3Rpb249J2lnbm9yZScsIGNhdGVnb3J5PUZ1dHVyZVdhcm5pbmcpCgppbXBvcnQgb3MKaW1wb3J0IG51bXB5IGFzIG5wCmltcG9ydCBwYW5kYXMgYXMgcGQKaW1wb3J0IG1hdHBsb3RsaWIucHlwbG90IGFzIHBsdAppbXBvcnQgc2VhYm9ybiBhcyBzbnMKCmZyb20gbWxydW4uZXhlY3V0aW9uIGltcG9ydCBNTENsaWVudEN0eApmcm9tIG1scnVuLmRhdGFzdG9yZSBpbXBvcnQgRGF0YUl0ZW0KZnJvbSBtbHJ1bi5hcnRpZmFjdHMgaW1wb3J0IFBsb3RBcnRpZmFjdCwgVGFibGVBcnRpZmFjdApmcm9tIG1scnVuLm1sdXRpbHMucGxvdHMgaW1wb3J0IGdjZl9jbGVhcgoKZnJvbSB0eXBpbmcgaW1wb3J0IExpc3QKCnBkLnNldF9vcHRpb24oImRpc3BsYXkuZmxvYXRfZm9ybWF0IiwgbGFtYmRhIHg6ICIlLjJmIiAlIHgpCgpkZWYgc3VtbWFyaXplKAogICAgY29udGV4dDogTUxDbGllbnRDdHgsCiAgICB0YWJsZTogRGF0YUl0ZW0sCiAgICBsYWJlbF9jb2x1bW46IHN0ciA9IE5vbmUsCiAgICBjbGFzc19sYWJlbHM6IExpc3Rbc3RyXSA9IFtdLAogICAgcGxvdF9oaXN0OiBib29sID0gVHJ1ZSwKICAgIHBsb3RzX2Rlc3Q6IHN0ciA9ICJwbG90cyIsCiAgICB1cGRhdGVfZGF0YXNldCA9IEZhbHNlLAopIC0+IE5vbmU6CiAgICAiIiJTdW1tYXJpemUgYSB0YWJsZQoKICAgIDpwYXJhbSBjb250ZXh0OiAgICAgICAgIHRoZSBmdW5jdGlvbiBjb250ZXh0CiAgICA6cGFyYW0gdGFibGU6ICAgICAgICAgICBNTFJ1biBpbnB1dCBwb2ludGluZyB0byBwYW5kYXMgZGF0YWZyYW1lIChjc3YvcGFycXVldCBmaWxlIHBhdGgpCiAgICA6cGFyYW0gbGFiZWxfY29sdW1uOiAgICBncm91bmQgdHJ1dGggY29sdW1uIGxhYmVsCiAgICA6cGFyYW0gY2xhc3NfbGFiZWxzOiAgICBsYWJlbCBmb3IgZWFjaCBjbGFzcyBpbiB0YWJsZXMgYW5kIHBsb3RzCiAgICA6cGFyYW0gcGxvdF9oaXN0OiAgICAgICAoVHJ1ZSkgc2V0IHRoaXMgdG8gRmFsc2UgZm9yIGxhcmdlIHRhYmxlcwogICAgOnBhcmFtIHBsb3RzX2Rlc3Q6ICAgICAgZGVzdGluYXRpb24gZm9sZGVyIG9mIHN1bW1hcnkgcGxvdHMgKHJlbGF0aXZlIHRvIGFydGlmYWN0X3BhdGgpCiAgICA6cGFyYW0gdXBkYXRlX2RhdGFzZXQ6ICB3aGVuIHRoZSB0YWJsZSBpcyBhIHJlZ2lzdGVyZWQgZGF0YXNldCB1cGRhdGUgdGhlIGNoYXJ0cyBpbi1wbGFjZSAKICAgICIiIgogICAgZGYgPSB0YWJsZS5hc19kZigpCiAgICBoZWFkZXIgPSBkZi5jb2x1bW5zLnZhbHVlcwogICAgZXh0cmFfZGF0YSA9IHt9CiAgICAKICAgIHRyeToKICAgICAgICBnY2ZfY2xlYXIocGx0KQogICAgICAgIHNuc3BsdCA9IHNucy5wYWlycGxvdChkZiwgaHVlPWxhYmVsX2NvbHVtbikjLCBkaWFnX2t3cz17ImJ3IjogMS41fSkKICAgICAgICBleHRyYV9kYXRhWyJoaXN0b2dyYW1zIl0gPSBjb250ZXh0LmxvZ19hcnRpZmFjdChQbG90QXJ0aWZhY3QoImhpc3RvZ3JhbXMiLCAgYm9keT1wbHQuZ2NmKCkpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxvY2FsX3BhdGg9ZiJ7cGxvdHNfZGVzdH0vaGlzdC5odG1sIiwgZGJfa2V5PUZhbHNlKQogICAgZXhjZXB0IEV4Y2VwdGlvbiBhcyBlOgogICAgICAgIGNvbnRleHQubG9nZ2VyLmVycm9yKGYnRmFpbGVkIHRvIGNyZWF0ZSBwYWlycGxvdCBoaXN0b2dyYW1zIGR1ZSB0bzoge2V9JykKICAgIAogICAgdHJ5OgogICAgICAgIGdjZl9jbGVhcihwbHQpCiAgICAgICAgcGxvdF9jb2xzID0gMwogICAgICAgIHBsb3Rfcm93cyA9IGludCgobGVuKGhlYWRlcikgLSAxKSAvIHBsb3RfY29scykrMQogICAgICAgIGZpZywgYXggPSBwbHQuc3VicGxvdHMocGxvdF9yb3dzLCBwbG90X2NvbHMsIGZpZ3NpemU9KDE1LCA0KSkKICAgICAgICBmaWcudGlnaHRfbGF5b3V0KHBhZD0yLjApCiAgICAgICAgZm9yIGkgaW4gcmFuZ2UocGxvdF9yb3dzICogcGxvdF9jb2xzKToKICAgICAgICAgICAgaWYgaSA8IGxlbihoZWFkZXIpOgogICAgICAgICAgICAgICAgc25zLnZpb2xpbnBsb3QoeD1kZltoZWFkZXJbaV1dLCBheD1heFtpbnQoaSAvIHBsb3RfY29scyldW2kgJSBwbG90X2NvbHNdLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9yaWVudD0naCcsIHdpZHRoPTAuNywgaW5uZXI9InF1YXJ0aWxlIikKICAgICAgICAgICAgZWxzZToKICAgICAgICAgICAgICAgIGZpZy5kZWxheGVzKGF4W2ludChpIC8gcGxvdF9jb2xzKV1baSAlIHBsb3RfY29sc10pICAgICAgICAKICAgICAgICAgICAgaSs9MQogICAgICAgIGV4dHJhX2RhdGFbInZpb2xpbiJdID0gY29udGV4dC5sb2dfYXJ0aWZhY3QoUGxvdEFydGlmYWN0KCJ2aW9saW4iLCAgYm9keT1wbHQuZ2NmKCksIHRpdGxlPSdWaW9saW4gUGxvdCcpLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbG9jYWxfcGF0aD1mIntwbG90c19kZXN0fS92aW9saW4uaHRtbCIsIGRiX2tleT1GYWxzZSkKICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToKICAgICAgICBjb250ZXh0LmxvZ2dlci53YXJuKGYnRmFpbGVkIHRvIGNyZWF0ZSB2aW9saW4gZGlzdHJpYnV0aW9uIHBsb3RzIGR1ZSB0bzoge2V9JykKCiAgICBpZiBsYWJlbF9jb2x1bW46IAogICAgICAgIGxhYmVscyA9IGRmLnBvcChsYWJlbF9jb2x1bW4pCiAgICAgICAgaW1idGFibGUgPSBsYWJlbHMudmFsdWVfY291bnRzKG5vcm1hbGl6ZT1UcnVlKS5zb3J0X2luZGV4KCkKICAgICAgICB0cnk6CiAgICAgICAgICAgIGdjZl9jbGVhcihwbHQpICAKICAgICAgICAgICAgYmFsYW5jZWJhciA9IGltYnRhYmxlLnBsb3Qoa2luZD0nYmFyJywgdGl0bGU9J2NsYXNzIGltYmFsYW5jZSAtIGxhYmVscycpCiAgICAgICAgICAgIGJhbGFuY2ViYXIuc2V0X3hsYWJlbCgnY2xhc3MnKQogICAgICAgICAgICBiYWxhbmNlYmFyLnNldF95bGFiZWwoInByb3BvcnRpb24gb2YgdG90YWwiKQogICAgICAgICAgICBleHRyYV9kYXRhWyJpbWJhbGFuY2UiXSA9IGNvbnRleHQubG9nX2FydGlmYWN0KFBsb3RBcnRpZmFjdCgiaW1iYWxhbmNlIiwgYm9keT1wbHQuZ2NmKCkpLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb2NhbF9wYXRoPWYie3Bsb3RzX2Rlc3R9L2ltYmFsYW5jZS5odG1sIikKICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6CiAgICAgICAgICAgIGNvbnRleHQubG9nZ2VyLndhcm4oZidGYWlsZWQgdG8gY3JlYXRlIGNsYXNzIGltYmFsYW5jZSBwbG90IGR1ZSB0bzoge2V9JykKICAgICAgICBjb250ZXh0LmxvZ19hcnRpZmFjdChUYWJsZUFydGlmYWN0KCJpbWJhbGFuY2Utd2VpZ2h0cy12ZWMiLCAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGRmPXBkLkRhdGFGcmFtZSh7IndlaWdodHMiOiBpbWJ0YWJsZX0pKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb2NhbF9wYXRoPWYie3Bsb3RzX2Rlc3R9L2ltYmFsYW5jZS13ZWlnaHRzLXZlYy5jc3YiLCBkYl9rZXk9RmFsc2UpCgogICAgdGJsY29yciA9IGRmLmNvcnIoKQogICAgbWFzayA9IG5wLnplcm9zX2xpa2UodGJsY29yciwgZHR5cGU9bnAuYm9vbCkKICAgIG1hc2tbbnAudHJpdV9pbmRpY2VzX2Zyb20obWFzayldID0gVHJ1ZQogICAgCiAgICBkZmNvcnIgPSBwZC5EYXRhRnJhbWUoZGF0YT10Ymxjb3JyLCBjb2x1bW5zPWhlYWRlciwgaW5kZXg9aGVhZGVyKQogICAgZGZjb3JyID0gZGZjb3JyW25wLmFyYW5nZShkZmNvcnIuc2hhcGVbMF0pWzosIE5vbmVdID4gbnAuYXJhbmdlKGRmY29yci5zaGFwZVsxXSldCiAgICBjb250ZXh0LmxvZ19hcnRpZmFjdChUYWJsZUFydGlmYWN0KCJjb3JyZWxhdGlvbi1tYXRyaXgiLCBkZj10Ymxjb3JyLCB2aXNpYmxlPVRydWUpLCAKICAgICAgICAgICAgICAgICAgICAgICAgIGxvY2FsX3BhdGg9ZiJ7cGxvdHNfZGVzdH0vY29ycmVsYXRpb24tbWF0cml4LmNzdiIsIGRiX2tleT1GYWxzZSkKICAgIAogICAgdHJ5OgogICAgICAgIGdjZl9jbGVhcihwbHQpCiAgICAgICAgYXggPSBwbHQuYXhlcygpCiAgICAgICAgc25zLmhlYXRtYXAodGJsY29yciwgYXg9YXgsIG1hc2s9bWFzaywgYW5ub3Q9RmFsc2UsIGNtYXA9cGx0LmNtLlJlZHMpCiAgICAgICAgYXguc2V0X3RpdGxlKCJmZWF0dXJlcyBjb3JyZWxhdGlvbiIpCiAgICAgICAgZXh0cmFfZGF0YVsiY29ycmVsYXRpb24iXSA9IGNvbnRleHQubG9nX2FydGlmYWN0KFBsb3RBcnRpZmFjdCgiY29ycmVsYXRpb24iLCAgYm9keT1wbHQuZ2NmKCksIHRpdGxlPSdDb3JyZWxhdGlvbiBNYXRyaXgnKSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsb2NhbF9wYXRoPWYie3Bsb3RzX2Rlc3R9L2NvcnIuaHRtbCIsIGRiX2tleT1GYWxzZSkKICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZToKICAgICAgICAgICAgY29udGV4dC5sb2dnZXIud2FybihmJ0ZhaWxlZCB0byBjcmVhdGUgZmVhdHVyZXMgY29ycmVsYXRpb24gcGxvdCBkdWUgdG86IHtlfScpCiAgICAKCiAgICBnY2ZfY2xlYXIocGx0KQogICAgaWYgdXBkYXRlX2RhdGFzZXQgYW5kIHRhYmxlLm1ldGEgYW5kIHRhYmxlLm1ldGEua2luZCA9PSAnZGF0YXNldCc6CiAgICAgICAgZnJvbSBtbHJ1bi5hcnRpZmFjdHMgaW1wb3J0IHVwZGF0ZV9kYXRhc2V0X21ldGEKICAgICAgICB1cGRhdGVfZGF0YXNldF9tZXRhKHRhYmxlLm1ldGEsIGV4dHJhX2RhdGE9ZXh0cmFfZGF0YSkKICAgICAgICAKCg==
+          commands: []
+          code_origin: https://github.com/mlrun/functions.git#8a7816038d1e23362b562eb2229032d34320ecce:/home/michaell/projects/temp/functions/describe/describe.ipynb
+        affinity: null
+      verbose: false
+  - name: test-classifier
+    spec:
+      kind: job
+      metadata:
+        name: test-classifier
+        tag: ''
+        hash: a1bab0bb911124cc4ac5beadc7a2354da1e56af3
+        project: widsdb2
+        labels:
+          author: yjb
+          framework: sklearn
+        categories:
+        - ml
+        - test
+      spec:
+        command: ''
+        args: []
+        image: mlrun/mlrun
+        env:
+        - name: V3IO_API
+          value: ''
+        - name: V3IO_USERNAME
+          value: ''
+        - name: V3IO_ACCESS_KEY
+          value: ''
+        default_handler: test_classifier
+        entry_points:
+          test_classifier:
+            name: test_classifier
+            doc: "Test one or more classifier models against held-out dataset\n\n\
+              Using held-out test features, evaluates the peformance of the estimated\
+              \ model\n\nCan be part of a kubeflow pipeline as a test step that is\
+              \ run post EDA and \ntraining/validation cycles"
+            parameters:
+            - name: context
+              doc: the function context
+              default: ''
+            - name: models_path
+              type: DataItem
+              doc: artifact models representing a file or a folder
+              default: ''
+            - name: test_set
+              type: DataItem
+              doc: test features and labels
+              default: ''
+            - name: label_column
+              type: str
+              doc: column name for ground truth labels
+              default: ''
+            - name: score_method
+              type: str
+              doc: for multiclass classification
+              default: micro
+            - name: plots_dest
+              type: str
+              doc: dir for test plots
+              default: ''
+            - name: model_evaluator
+              doc: 'NOT IMPLEMENTED: specific method to generate eval, passed in as
+                string or available in this folder'
+              default: null
+            - name: default_model
+              type: str
+              default: model.pkl
+            - name: predictions_column
+              type: str
+              doc: column name for the predictions column on the resulted artifact
+              default: yscore
+            - name: model_update
+              doc: (True) update model, when running as stand alone no need in update
+              default: true
+            outputs:
+            - default: ''
+            lineno: 15
+        description: test a classifier using held-out or new data
+        build:
+          functionSourceCode: IyBHZW5lcmF0ZWQgYnkgbnVjbGlvLmV4cG9ydC5OdWNsaW9FeHBvcnRlcgoKaW1wb3J0IHdhcm5pbmdzCndhcm5pbmdzLmZpbHRlcndhcm5pbmdzKCdpZ25vcmUnKQoKaW1wb3J0IG9zCmltcG9ydCBwYW5kYXMgYXMgcGQKCmZyb20gbWxydW4uZGF0YXN0b3JlIGltcG9ydCBEYXRhSXRlbQpmcm9tIG1scnVuLmFydGlmYWN0cyBpbXBvcnQgZ2V0X21vZGVsLCB1cGRhdGVfbW9kZWwKZnJvbSBtbHJ1bi5tbHV0aWxzLm1vZGVscyBpbXBvcnQgZXZhbF9tb2RlbF92Mgpmcm9tIGNsb3VkcGlja2xlIGltcG9ydCBsb2FkCmZyb20gdXJsbGliLnJlcXVlc3QgaW1wb3J0IHVybG9wZW4KCmRlZiB0ZXN0X2NsYXNzaWZpZXIoCiAgICBjb250ZXh0LAogICAgbW9kZWxzX3BhdGg6IERhdGFJdGVtLCAKICAgIHRlc3Rfc2V0OiBEYXRhSXRlbSwKICAgIGxhYmVsX2NvbHVtbjogc3RyLAogICAgc2NvcmVfbWV0aG9kOiBzdHIgPSAnbWljcm8nLAogICAgcGxvdHNfZGVzdDogc3RyID0gIiIsCiAgICBtb2RlbF9ldmFsdWF0b3IgPSBOb25lLAogICAgZGVmYXVsdF9tb2RlbDogc3RyID0gIm1vZGVsLnBrbCIsCiAgICBwcmVkaWN0aW9uc19jb2x1bW46IHN0ciA9ICd5c2NvcmUnLAogICAgbW9kZWxfdXBkYXRlID0gVHJ1ZQopIC0+IE5vbmU6CiAgICAiIiJUZXN0IG9uZSBvciBtb3JlIGNsYXNzaWZpZXIgbW9kZWxzIGFnYWluc3QgaGVsZC1vdXQgZGF0YXNldAogICAgCiAgICBVc2luZyBoZWxkLW91dCB0ZXN0IGZlYXR1cmVzLCBldmFsdWF0ZXMgdGhlIHBlZm9ybWFuY2Ugb2YgdGhlIGVzdGltYXRlZCBtb2RlbAogICAgCiAgICBDYW4gYmUgcGFydCBvZiBhIGt1YmVmbG93IHBpcGVsaW5lIGFzIGEgdGVzdCBzdGVwIHRoYXQgaXMgcnVuIHBvc3QgRURBIGFuZCAKICAgIHRyYWluaW5nL3ZhbGlkYXRpb24gY3ljbGVzCiAgICAKICAgIDpwYXJhbSBjb250ZXh0OiAgICAgICAgICAgIHRoZSBmdW5jdGlvbiBjb250ZXh0CiAgICA6cGFyYW0gbW9kZWxzX3BhdGg6ICAgICAgICBhcnRpZmFjdCBtb2RlbHMgcmVwcmVzZW50aW5nIGEgZmlsZSBvciBhIGZvbGRlcgogICAgOnBhcmFtIHRlc3Rfc2V0OiAgICAgICAgICAgdGVzdCBmZWF0dXJlcyBhbmQgbGFiZWxzCiAgICA6cGFyYW0gbGFiZWxfY29sdW1uOiAgICAgICBjb2x1bW4gbmFtZSBmb3IgZ3JvdW5kIHRydXRoIGxhYmVscwogICAgOnBhcmFtIHNjb3JlX21ldGhvZDogICAgICAgZm9yIG11bHRpY2xhc3MgY2xhc3NpZmljYXRpb24KICAgIDpwYXJhbSBwbG90c19kZXN0OiAgICAgICAgIGRpciBmb3IgdGVzdCBwbG90cwogICAgOnBhcmFtIG1vZGVsX2V2YWx1YXRvcjogICAgTk9UIElNUExFTUVOVEVEOiBzcGVjaWZpYyBtZXRob2QgdG8gZ2VuZXJhdGUgZXZhbCwgcGFzc2VkIGluIGFzIHN0cmluZwogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgb3IgYXZhaWxhYmxlIGluIHRoaXMgZm9sZGVyCiAgICA6cGFyYW0gcHJlZGljdGlvbnNfY29sdW1uOiBjb2x1bW4gbmFtZSBmb3IgdGhlIHByZWRpY3Rpb25zIGNvbHVtbiBvbiB0aGUgcmVzdWx0ZWQgYXJ0aWZhY3QKICAgIDpwYXJhbSBtb2RlbF91cGRhdGU6ICAgICAgIChUcnVlKSB1cGRhdGUgbW9kZWwsIHdoZW4gcnVubmluZyBhcyBzdGFuZCBhbG9uZSBubyBuZWVkIGluIHVwZGF0ZQogICAgIiIiCiAgICB4dGVzdCA9IHRlc3Rfc2V0LmFzX2RmKCkKICAgIHl0ZXN0ID0geHRlc3QucG9wKGxhYmVsX2NvbHVtbikKICAgIAogICAgdHJ5OgogICAgICAgIG1vZGVsX2ZpbGUsIG1vZGVsX29iaiwgXyA9IGdldF9tb2RlbChtb2RlbHNfcGF0aCwgc3VmZml4PScucGtsJykKICAgICAgICBtb2RlbF9vYmogPSBsb2FkKG9wZW4obW9kZWxfZmlsZSwgInJiIikpCiAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGE6CiAgICAgICAgcmFpc2UgRXhjZXB0aW9uKCJtb2RlbCBsb2NhdGlvbiBsaWtlbHkgc3BlY2lmaWVkIikKICAgIAogICAgZXh0cmFfZGF0YSA9IGV2YWxfbW9kZWxfdjIoY29udGV4dCwgeHRlc3QsIHl0ZXN0LnZhbHVlcywgbW9kZWxfb2JqKQogICAgaWYgbW9kZWxfb2JqIGFuZCBtb2RlbF91cGRhdGUgPT0gVHJ1ZToKICAgICAgICB1cGRhdGVfbW9kZWwobW9kZWxzX3BhdGgsIGV4dHJhX2RhdGE9ZXh0cmFfZGF0YSwgCiAgICAgICAgICAgICAgICAgICAgIG1ldHJpY3M9Y29udGV4dC5yZXN1bHRzLCBrZXlfcHJlZml4PSd2YWxpZGF0aW9uLScpCiAgICAKICAgIHlfaGF0ID0gbW9kZWxfb2JqLnByZWRpY3QoeHRlc3QpCiAgICBpZiB5X2hhdC5uZGltID09IDEgb3IgeV9oYXQuc2hhcGVbMV0gPT0gMToKICAgICAgICBzY29yZV9uYW1lcyA9IFtwcmVkaWN0aW9uc19jb2x1bW5dCiAgICBlbHNlOgogICAgICAgIHNjb3JlX25hbWVzID0gW2Yie3ByZWRpY3Rpb25zX2NvbHVtbn1fIiArIHN0cih4KSBmb3IgeCBpbiByYW5nZSh5X2hhdC5zaGFwZVsxXSldCgogICAgZGYgPSBwZC5jb25jYXQoW3h0ZXN0LCB5dGVzdCwgcGQuRGF0YUZyYW1lKHlfaGF0LCBjb2x1bW5zPXNjb3JlX25hbWVzKV0sIGF4aXM9MSkKICAgIGNvbnRleHQubG9nX2RhdGFzZXQoInRlc3Rfc2V0X3ByZWRzIiwgZGY9ZGYsIGZvcm1hdD0icGFycXVldCIsIGluZGV4PUZhbHNlKQoK
+          commands: []
+          code_origin: https://github.com/mlrun/functions.git#8a7816038d1e23362b562eb2229032d34320ecce:/home/michaell/projects/temp/functions/test_classifier/test_classifier.ipynb
+        affinity: null
+      verbose: false
+  - name: tstprep
+    spec:
+      kind: job
+      metadata:
+        name: tstprep
+        tag: ''
+        project: widsdb2
+      spec:
+        command: ''
+        args: []
+        image: mlrun/ml-models
+        env:
+        - name: V3IO_API
+          value: ''
+        - name: V3IO_USERNAME
+          value: ''
+        - name: V3IO_ACCESS_KEY
+          value: ''
+        default_handler: tstdata_prep
+        entry_points:
+          tstdata_prep:
+            name: tstdata_prep
+            doc: "process a raw churn data file\n\nData has 3 states here: `raw`,\
+              \ `cleaned` and `encoded`\n\n* `raw` kept by default, the pipeline begins\
+              \ with a raw data artifact\n* `cleaned` kept for charts, presentations\n\
+              * `encoded` is input for a cross validation and training function\n\n\
+              steps (not necessarily in correct order, some parallel)\n* column name\
+              \ maps\n* deal with nans and other types of missings/junk\n* label encode\
+              \ binary and ordinal category columns\n* create category ranges from\
+              \ numerical columns\nAnd finally,\n* test\n\nWhy we don't one-hot-encode\
+              \ here? One hot encoding isn't a necessary\nstep for all algorithms.\
+              \ It can also generate a very large feature\nmatrix that doesn't need\
+              \ to be serialized (even if sparse).\nSo we leave one-hot-encoding for\
+              \ the training step.\n\nWhat about scaling numerical columns? Same as\
+              \ why we don't one hot\nencode here. Do we scale before train-test split?\
+              \  IMHO, no.  Scaling\nbefore splitting introduces a type of data leakage.\
+              \  In addition,\nmany estimators are completely immune to the monotonic\
+              \ transformations\nimplied by scaling, so why waste the cycles?\n\n\
+              TODO: \n    * parallelize where possible\n    * more abstraction (more\
+              \ parameters, chain sklearn transformers)\n    * convert to marketplace\
+              \ function"
+            parameters:
+            - name: context
+              type: MLClientCtx
+              doc: the function execution context
+              default: ''
+            - name: src
+              type: DataItem
+              doc: an artifact or file path
+              default: ''
+            - name: file_ext
+              type: str
+              doc: file type for artifacts
+              default: csv
+            - name: test_enc
+              type: str
+              default: test_enc
+            outputs:
+            - default: ''
+            lineno: 22
+        description: ''
+        build:
+          functionSourceCode: IyBHZW5lcmF0ZWQgYnkgbnVjbGlvLmV4cG9ydC5OdWNsaW9FeHBvcnRlcgoKCgppbXBvcnQgb3MKCmltcG9ydCBzeXMKc3lzLnBhdGguYXBwZW5kKCcvdjNpby9wcm9qZWN0cy93aWRzZGIyL3V0aWwnKQoKCmltcG9ydCBqc29uCmltcG9ydCBwYW5kYXMgYXMgcGQKaW1wb3J0IG51bXB5IGFzIG5wCmZyb20gY29sbGVjdGlvbnMgaW1wb3J0IGRlZmF1bHRkaWN0CmltcG9ydCB3aWRzdXRpbCBhcyB1dGlsCmZyb20gY2xvdWRwaWNrbGUgaW1wb3J0IGR1bXBzLCBkdW1wLCBsb2FkCgoKZnJvbSBtbHJ1bi5leGVjdXRpb24gaW1wb3J0IE1MQ2xpZW50Q3R4CmZyb20gbWxydW4uZGF0YXN0b3JlIGltcG9ydCBEYXRhSXRlbQoKZGVmIHRzdGRhdGFfcHJlcCgKICAgIGNvbnRleHQ6TUxDbGllbnRDdHgsIAogICAgc3JjOiBEYXRhSXRlbSwKICAgIGZpbGVfZXh0OiBzdHIgPSAiY3N2IiwKICAgIHRlc3RfZW5jOiBzdHIgPSAidGVzdF9lbmMiCik6CiAgICAiIiJwcm9jZXNzIGEgcmF3IGNodXJuIGRhdGEgZmlsZQogICAgCiAgICBEYXRhIGhhcyAzIHN0YXRlcyBoZXJlOiBgcmF3YCwgYGNsZWFuZWRgIGFuZCBgZW5jb2RlZGAKICAgIAogICAgKiBgcmF3YCBrZXB0IGJ5IGRlZmF1bHQsIHRoZSBwaXBlbGluZSBiZWdpbnMgd2l0aCBhIHJhdyBkYXRhIGFydGlmYWN0CiAgICAqIGBjbGVhbmVkYCBrZXB0IGZvciBjaGFydHMsIHByZXNlbnRhdGlvbnMKICAgICogYGVuY29kZWRgIGlzIGlucHV0IGZvciBhIGNyb3NzIHZhbGlkYXRpb24gYW5kIHRyYWluaW5nIGZ1bmN0aW9uCiAgICAKICAgIHN0ZXBzIChub3QgbmVjZXNzYXJpbHkgaW4gY29ycmVjdCBvcmRlciwgc29tZSBwYXJhbGxlbCkKICAgICogY29sdW1uIG5hbWUgbWFwcwogICAgKiBkZWFsIHdpdGggbmFucyBhbmQgb3RoZXIgdHlwZXMgb2YgbWlzc2luZ3MvanVuawogICAgKiBsYWJlbCBlbmNvZGUgYmluYXJ5IGFuZCBvcmRpbmFsIGNhdGVnb3J5IGNvbHVtbnMKICAgICogY3JlYXRlIGNhdGVnb3J5IHJhbmdlcyBmcm9tIG51bWVyaWNhbCBjb2x1bW5zCiAgICBBbmQgZmluYWxseSwKICAgICogdGVzdAogICAgCiAgICBXaHkgd2UgZG9uJ3Qgb25lLWhvdC1lbmNvZGUgaGVyZT8gT25lIGhvdCBlbmNvZGluZyBpc24ndCBhIG5lY2Vzc2FyeQogICAgc3RlcCBmb3IgYWxsIGFsZ29yaXRobXMuIEl0IGNhbiBhbHNvIGdlbmVyYXRlIGEgdmVyeSBsYXJnZSBmZWF0dXJlCiAgICBtYXRyaXggdGhhdCBkb2Vzbid0IG5lZWQgdG8gYmUgc2VyaWFsaXplZCAoZXZlbiBpZiBzcGFyc2UpLgogICAgU28gd2UgbGVhdmUgb25lLWhvdC1lbmNvZGluZyBmb3IgdGhlIHRyYWluaW5nIHN0ZXAuCiAgICAKICAgIFdoYXQgYWJvdXQgc2NhbGluZyBudW1lcmljYWwgY29sdW1ucz8gU2FtZSBhcyB3aHkgd2UgZG9uJ3Qgb25lIGhvdAogICAgZW5jb2RlIGhlcmUuIERvIHdlIHNjYWxlIGJlZm9yZSB0cmFpbi10ZXN0IHNwbGl0PyAgSU1ITywgbm8uICBTY2FsaW5nCiAgICBiZWZvcmUgc3BsaXR0aW5nIGludHJvZHVjZXMgYSB0eXBlIG9mIGRhdGEgbGVha2FnZS4gIEluIGFkZGl0aW9uLAogICAgbWFueSBlc3RpbWF0b3JzIGFyZSBjb21wbGV0ZWx5IGltbXVuZSB0byB0aGUgbW9ub3RvbmljIHRyYW5zZm9ybWF0aW9ucwogICAgaW1wbGllZCBieSBzY2FsaW5nLCBzbyB3aHkgd2FzdGUgdGhlIGN5Y2xlcz8KICAgIAogICAgVE9ETzogCiAgICAgICAgKiBwYXJhbGxlbGl6ZSB3aGVyZSBwb3NzaWJsZQogICAgICAgICogbW9yZSBhYnN0cmFjdGlvbiAobW9yZSBwYXJhbWV0ZXJzLCBjaGFpbiBza2xlYXJuIHRyYW5zZm9ybWVycykKICAgICAgICAqIGNvbnZlcnQgdG8gbWFya2V0cGxhY2UgZnVuY3Rpb24KICAgICAgICAKICAgIDpwYXJhbSBjb250ZXh0OiAgICAgICAgICB0aGUgZnVuY3Rpb24gZXhlY3V0aW9uIGNvbnRleHQKICAgIDpwYXJhbSBzcmM6ICAgICAgICAgICAgICBhbiBhcnRpZmFjdCBvciBmaWxlIHBhdGgKICAgIDpwYXJhbSBmaWxlX2V4dDogICAgICAgICBmaWxlIHR5cGUgZm9yIGFydGlmYWN0cwogICAgOnBhcmFtIG1vZGVsc19kZXN0OiAgICAgICBsYWJlbCBlbmNvZGVycyBhbmQgb3RoZXIgcHJlcHJvY2Vzc2luZyBzdGVwcwogICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNob3VsZCBiZSBzYXZlZCB0b2dldGhlciB3aXRoIG90aGVyIHBpcGVsaW5lCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbW9kZWxzCiAgICA6cGFyYW0gY2xlYW5lZF9rZXk6ICAgICAga2V5IG9mIGNsZWFuZWQgZGF0YSB0YWJsZSBpbiBhcnRpZmFjdCBzdG9yZQogICAgOnBhcmFtIGVuY29kZWRfa2V5OiAgICAgIGtleSBvZiBlbmNvZGVkIGRhdGEgdGFibGUgaW4gYXJ0aWZhY3Qgc3RvcmUKICAgICIiIgogICAgZGYgPSBzcmMuYXNfZGYoKQogICAgCiAgICBkYXRhcHJlcHJvY2VzcyA9dXRpbC5EYXRhUHJlcHJvY2VzcyhkZikKICAgIGRmID0gZGF0YXByZXByb2Nlc3MucHJlcHJvY2VzcygpCgogICAgZGYgPSBkZi5maWxsbmEoMCkKICAgIGNvbnRleHQubG9nX2RhdGFzZXQodGVzdF9lbmMsIGRmPWRmLCBmb3JtYXQ9ZmlsZV9leHQsIGluZGV4PUZhbHNlKQoK
+          commands: []
+          code_origin: tstprep.ipynb
+        affinity: null
+      verbose: false
+  - url: db://widsdb2/lightgbm-serving
+    name: lightgbm-serving
+  - url: hub://v2_model_tester
+    name: live_tester
+  workflows:
+  - name: main
+    path: workflow.py
+  - name: infer
+    path: wf.py
+  artifacts:
+  - key: raw_train_data
+    kind: dataset
+    iter: 0
+    tree: latest
+    target_path: v3io:///projects/widsdb2/artifacts/raw_train_data.csv
+    format: csv
+    size: 87383729
+    db_key: raw_train_data
+    schema:
+      fields:
+      - name: index
+        type: integer
+      - name: index
+        type: integer
+      - name: encounter_id
+        type: integer
+      - name: hospital_id
+        type: integer
+      - name: age
+        type: number
+      - name: bmi
+        type: number
+      - name: elective_surgery
+        type: integer
+      - name: ethnicity
+        type: string
+      - name: gender
+        type: string
+      - name: height
+        type: number
+      - name: hospital_admit_source
+        type: string
+      - name: icu_admit_source
+        type: string
+      - name: icu_id
+        type: integer
+      - name: icu_stay_type
+        type: string
+      - name: icu_type
+        type: string
+      - name: pre_icu_los_days
+        type: number
+      - name: readmission_status
+        type: integer
+      - name: weight
+        type: number
+      - name: albumin_apache
+        type: number
+      - name: apache_2_diagnosis
+        type: number
+      - name: apache_3j_diagnosis
+        type: number
+      - name: apache_post_operative
+        type: integer
+      - name: arf_apache
+        type: integer
+      - name: bilirubin_apache
+        type: number
+      - name: bun_apache
+        type: number
+      - name: creatinine_apache
+        type: number
+      - name: fio2_apache
+        type: number
+      - name: gcs_eyes_apache
+        type: number
+      - name: gcs_motor_apache
+        type: number
+      - name: gcs_unable_apache
+        type: number
+      - name: gcs_verbal_apache
+        type: number
+      - name: glucose_apache
+        type: number
+      - name: heart_rate_apache
+        type: number
+      - name: hematocrit_apache
+        type: number
+      - name: intubated_apache
+        type: integer
+      - name: map_apache
+        type: number
+      - name: paco2_apache
+        type: number
+      - name: paco2_for_ph_apache
+        type: number
+      - name: pao2_apache
+        type: number
+      - name: ph_apache
+        type: number
+      - name: resprate_apache
+        type: number
+      - name: sodium_apache
+        type: number
+      - name: temp_apache
+        type: number
+      - name: urineoutput_apache
+        type: number
+      - name: ventilated_apache
+        type: integer
+      - name: wbc_apache
+        type: number
+      - name: d1_diasbp_invasive_max
+        type: number
+      - name: d1_diasbp_invasive_min
+        type: number
+      - name: d1_diasbp_max
+        type: number
+      - name: d1_diasbp_min
+        type: number
+      - name: d1_diasbp_noninvasive_max
+        type: number
+      - name: d1_diasbp_noninvasive_min
+        type: number
+      - name: d1_heartrate_max
+        type: number
+      - name: d1_heartrate_min
+        type: number
+      - name: d1_mbp_invasive_max
+        type: number
+      - name: d1_mbp_invasive_min
+        type: number
+      - name: d1_mbp_max
+        type: number
+      - name: d1_mbp_min
+        type: number
+      - name: d1_mbp_noninvasive_max
+        type: number
+      - name: d1_mbp_noninvasive_min
+        type: number
+      - name: d1_resprate_max
+        type: number
+      - name: d1_resprate_min
+        type: number
+      - name: d1_spo2_max
+        type: number
+      - name: d1_spo2_min
+        type: number
+      - name: d1_sysbp_invasive_max
+        type: number
+      - name: d1_sysbp_invasive_min
+        type: number
+      - name: d1_sysbp_max
+        type: number
+      - name: d1_sysbp_min
+        type: number
+      - name: d1_sysbp_noninvasive_max
+        type: number
+      - name: d1_sysbp_noninvasive_min
+        type: number
+      - name: d1_temp_max
+        type: number
+      - name: d1_temp_min
+        type: number
+      - name: h1_diasbp_invasive_max
+        type: number
+      - name: h1_diasbp_invasive_min
+        type: number
+      - name: h1_diasbp_max
+        type: number
+      - name: h1_diasbp_min
+        type: number
+      - name: h1_diasbp_noninvasive_max
+        type: number
+      - name: h1_diasbp_noninvasive_min
+        type: number
+      - name: h1_heartrate_max
+        type: number
+      - name: h1_heartrate_min
+        type: number
+      - name: h1_mbp_invasive_max
+        type: number
+      - name: h1_mbp_invasive_min
+        type: number
+      - name: h1_mbp_max
+        type: number
+      - name: h1_mbp_min
+        type: number
+      - name: h1_mbp_noninvasive_max
+        type: number
+      - name: h1_mbp_noninvasive_min
+        type: number
+      - name: h1_resprate_max
+        type: number
+      - name: h1_resprate_min
+        type: number
+      - name: h1_spo2_max
+        type: number
+      - name: h1_spo2_min
+        type: number
+      - name: h1_sysbp_invasive_max
+        type: number
+      - name: h1_sysbp_invasive_min
+        type: number
+      - name: h1_sysbp_max
+        type: number
+      - name: h1_sysbp_min
+        type: number
+      - name: h1_sysbp_noninvasive_max
+        type: number
+      - name: h1_sysbp_noninvasive_min
+        type: number
+      - name: h1_temp_max
+        type: number
+      - name: h1_temp_min
+        type: number
+      - name: d1_albumin_max
+        type: number
+      - name: d1_albumin_min
+        type: number
+      - name: d1_bilirubin_max
+        type: number
+      primaryKey:
+      - index
+      pandas_version: 0.20.0
+    header:
+    - index
+    - encounter_id
+    - hospital_id
+    - age
+    - bmi
+    - elective_surgery
+    - ethnicity
+    - gender
+    - height
+    - hospital_admit_source
+    - icu_admit_source
+    - icu_id
+    - icu_stay_type
+    - icu_type
+    - pre_icu_los_days
+    - readmission_status
+    - weight
+    - albumin_apache
+    - apache_2_diagnosis
+    - apache_3j_diagnosis
+    - apache_post_operative
+    - arf_apache
+    - bilirubin_apache
+    - bun_apache
+    - creatinine_apache
+    - fio2_apache
+    - gcs_eyes_apache
+    - gcs_motor_apache
+    - gcs_unable_apache
+    - gcs_verbal_apache
+    - glucose_apache
+    - heart_rate_apache
+    - hematocrit_apache
+    - intubated_apache
+    - map_apache
+    - paco2_apache
+    - paco2_for_ph_apache
+    - pao2_apache
+    - ph_apache
+    - resprate_apache
+    - sodium_apache
+    - temp_apache
+    - urineoutput_apache
+    - ventilated_apache
+    - wbc_apache
+    - d1_diasbp_invasive_max
+    - d1_diasbp_invasive_min
+    - d1_diasbp_max
+    - d1_diasbp_min
+    - d1_diasbp_noninvasive_max
+    - d1_diasbp_noninvasive_min
+    - d1_heartrate_max
+    - d1_heartrate_min
+    - d1_mbp_invasive_max
+    - d1_mbp_invasive_min
+    - d1_mbp_max
+    - d1_mbp_min
+    - d1_mbp_noninvasive_max
+    - d1_mbp_noninvasive_min
+    - d1_resprate_max
+    - d1_resprate_min
+    - d1_spo2_max
+    - d1_spo2_min
+    - d1_sysbp_invasive_max
+    - d1_sysbp_invasive_min
+    - d1_sysbp_max
+    - d1_sysbp_min
+    - d1_sysbp_noninvasive_max
+    - d1_sysbp_noninvasive_min
+    - d1_temp_max
+    - d1_temp_min
+    - h1_diasbp_invasive_max
+    - h1_diasbp_invasive_min
+    - h1_diasbp_max
+    - h1_diasbp_min
+    - h1_diasbp_noninvasive_max
+    - h1_diasbp_noninvasive_min
+    - h1_heartrate_max
+    - h1_heartrate_min
+    - h1_mbp_invasive_max
+    - h1_mbp_invasive_min
+    - h1_mbp_max
+    - h1_mbp_min
+    - h1_mbp_noninvasive_max
+    - h1_mbp_noninvasive_min
+    - h1_resprate_max
+    - h1_resprate_min
+    - h1_spo2_max
+    - h1_spo2_min
+    - h1_sysbp_invasive_max
+    - h1_sysbp_invasive_min
+    - h1_sysbp_max
+    - h1_sysbp_min
+    - h1_sysbp_noninvasive_max
+    - h1_sysbp_noninvasive_min
+    - h1_temp_max
+    - h1_temp_min
+    - d1_albumin_max
+    - d1_albumin_min
+    - d1_bilirubin_max
+    length: 130157
+    preview:
+    - - 1
+      - 214826
+      - 118
+      - 68.0
+      - 22.73280282
+      - 0
+      - Caucasian
+      - M
+      - 180.3
+      - Floor
+      - Floor
+      - 92
+      - admit
+      - CTICU
+      - 0.541666667
+      - 0
+      - 73.9
+      - 2.3
+      - 113.0
+      - 502.01
+      - 0
+      - 0
+      - 0.4
+      - 31.0
+      - 2.51
+      - .nan
+      - 3.0
+      - 6.0
+      - 0.0
+      - 4.0
+      - 168.0
+      - 118.0
+      - 27.4
+      - 0
+      - 40.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 36.0
+      - 134.0
+      - 39.3
+      - .nan
+      - 0
+      - 14.1
+      - 46.0
+      - 32.0
+      - 68.0
+      - 37.0
+      - 68.0
+      - 37.0
+      - 119.0
+      - 72.0
+      - 66.0
+      - 40.0
+      - 89.0
+      - 46.0
+      - 89.0
+      - 46.0
+      - 34.0
+      - 10.0
+      - 100.0
+      - 74.0
+      - 122.0
+      - 64.0
+      - 131.0
+      - 73.0
+      - 131.0
+      - 73.0
+      - 39.9
+      - 37.2
+      - .nan
+      - .nan
+      - 68.0
+      - 63.0
+      - 68.0
+      - 63.0
+      - 119.0
+      - 108.0
+      - .nan
+      - .nan
+      - 86.0
+      - 85.0
+      - 86.0
+      - 85.0
+      - 26.0
+      - 18.0
+      - 100.0
+      - 74.0
+      - .nan
+      - .nan
+      - 131.0
+      - 115.0
+      - 131.0
+      - 115.0
+      - 39.5
+      - 37.5
+      - 2.3
+      - 2.3
+      - 0.4
+    - - 2
+      - 246060
+      - 81
+      - 77.0
+      - 27.421875
+      - 0
+      - Caucasian
+      - F
+      - 160.0
+      - Floor
+      - Floor
+      - 90
+      - admit
+      - Med-Surg ICU
+      - 0.927777778
+      - 0
+      - 70.2
+      - .nan
+      - 108.0
+      - 203.01
+      - 0
+      - 0
+      - .nan
+      - 9.0
+      - 0.56
+      - 1.0
+      - 1.0
+      - 3.0
+      - 0.0
+      - 1.0
+      - 145.0
+      - 120.0
+      - 36.9
+      - 0
+      - 46.0
+      - 37.0
+      - 37.0
+      - 51.0
+      - 7.45
+      - 33.0
+      - 145.0
+      - 35.1
+      - .nan
+      - 1
+      - 12.7
+      - .nan
+      - .nan
+      - 95.0
+      - 31.0
+      - 95.0
+      - 31.0
+      - 118.0
+      - 72.0
+      - .nan
+      - .nan
+      - 120.0
+      - 38.0
+      - 120.0
+      - 38.0
+      - 32.0
+      - 12.0
+      - 100.0
+      - 70.0
+      - .nan
+      - .nan
+      - 159.0
+      - 67.0
+      - 159.0
+      - 67.0
+      - 36.3
+      - 35.1
+      - .nan
+      - .nan
+      - 61.0
+      - 48.0
+      - 61.0
+      - 48.0
+      - 114.0
+      - 100.0
+      - .nan
+      - .nan
+      - 85.0
+      - 57.0
+      - 85.0
+      - 57.0
+      - 31.0
+      - 28.0
+      - 95.0
+      - 70.0
+      - .nan
+      - .nan
+      - 95.0
+      - 71.0
+      - 95.0
+      - 71.0
+      - 36.3
+      - 36.3
+      - 1.6
+      - 1.6
+      - 0.5
+    - - 3
+      - 276985
+      - 118
+      - 25.0
+      - 31.95274882
+      - 0
+      - Caucasian
+      - F
+      - 172.7
+      - Emergency Department
+      - Accident & Emergency
+      - 93
+      - admit
+      - Med-Surg ICU
+      - 0.000694444
+      - 0
+      - 95.3
+      - .nan
+      - 122.0
+      - 703.03
+      - 0
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 3.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - .nan
+      - 102.0
+      - .nan
+      - 0
+      - 68.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 37.0
+      - .nan
+      - 36.7
+      - .nan
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - 88.0
+      - 48.0
+      - 88.0
+      - 48.0
+      - 96.0
+      - 68.0
+      - .nan
+      - .nan
+      - 102.0
+      - 68.0
+      - 102.0
+      - 68.0
+      - 21.0
+      - 8.0
+      - 98.0
+      - 91.0
+      - .nan
+      - .nan
+      - 148.0
+      - 105.0
+      - 148.0
+      - 105.0
+      - 37.0
+      - 36.7
+      - .nan
+      - .nan
+      - 88.0
+      - 58.0
+      - 88.0
+      - 58.0
+      - 96.0
+      - 78.0
+      - .nan
+      - .nan
+      - 91.0
+      - 83.0
+      - 91.0
+      - 83.0
+      - 20.0
+      - 16.0
+      - 98.0
+      - 91.0
+      - .nan
+      - .nan
+      - 148.0
+      - 124.0
+      - 148.0
+      - 124.0
+      - 36.7
+      - 36.7
+      - .nan
+      - .nan
+      - .nan
+    - - 4
+      - 262220
+      - 118
+      - 81.0
+      - 22.63554823
+      - 1
+      - Caucasian
+      - F
+      - 165.1
+      - Operating Room
+      - Operating Room / Recovery
+      - 92
+      - admit
+      - CTICU
+      - 0.000694444
+      - 0
+      - 61.7
+      - .nan
+      - 203.0
+      - 1206.03
+      - 1
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - 0.6
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 185.0
+      - 114.0
+      - 25.9
+      - 1
+      - 60.0
+      - 30.0
+      - 30.0
+      - 142.0
+      - 7.39
+      - 4.0
+      - .nan
+      - 34.8
+      - .nan
+      - 1
+      - 8.0
+      - 62.0
+      - 30.0
+      - 48.0
+      - 42.0
+      - 48.0
+      - 42.0
+      - 116.0
+      - 92.0
+      - 92.0
+      - 52.0
+      - 84.0
+      - 84.0
+      - 84.0
+      - 84.0
+      - 23.0
+      - 7.0
+      - 100.0
+      - 95.0
+      - 164.0
+      - 78.0
+      - 158.0
+      - 84.0
+      - 158.0
+      - 84.0
+      - 38.0
+      - 34.8
+      - 62.0
+      - 44.0
+      - 62.0
+      - 44.0
+      - .nan
+      - .nan
+      - 100.0
+      - 96.0
+      - 92.0
+      - 71.0
+      - 92.0
+      - 71.0
+      - .nan
+      - .nan
+      - 12.0
+      - 11.0
+      - 100.0
+      - 99.0
+      - 136.0
+      - 106.0
+      - 136.0
+      - 106.0
+      - .nan
+      - .nan
+      - 35.6
+      - 34.8
+      - .nan
+      - .nan
+      - .nan
+    - - 5
+      - 201746
+      - 33
+      - 19.0
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 188.0
+      - .nan
+      - Accident & Emergency
+      - 91
+      - admit
+      - Med-Surg ICU
+      - 0.073611111
+      - 0
+      - .nan
+      - .nan
+      - 119.0
+      - 601.01
+      - 0
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 60.0
+      - .nan
+      - 0
+      - 103.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 16.0
+      - .nan
+      - 36.7
+      - .nan
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - 99.0
+      - 57.0
+      - 99.0
+      - 57.0
+      - 89.0
+      - 60.0
+      - .nan
+      - .nan
+      - 104.0
+      - 90.0
+      - 104.0
+      - 90.0
+      - 18.0
+      - 16.0
+      - 100.0
+      - 96.0
+      - .nan
+      - .nan
+      - 147.0
+      - 120.0
+      - 147.0
+      - 120.0
+      - 37.2
+      - 36.7
+      - .nan
+      - .nan
+      - 99.0
+      - 68.0
+      - 99.0
+      - 68.0
+      - 89.0
+      - 76.0
+      - .nan
+      - .nan
+      - 104.0
+      - 92.0
+      - 104.0
+      - 92.0
+      - .nan
+      - .nan
+      - 100.0
+      - 100.0
+      - .nan
+      - .nan
+      - 130.0
+      - 120.0
+      - 130.0
+      - 120.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+    - - 6
+      - 182697
+      - 83
+      - 67.0
+      - 27.55561067
+      - 0
+      - Caucasian
+      - M
+      - 190.5
+      - Direct Admit
+      - Accident & Emergency
+      - 95
+      - admit
+      - Med-Surg ICU
+      - 0.000694444
+      - 0
+      - 100.0
+      - .nan
+      - 301.0
+      - 403.01
+      - 0
+      - 0
+      - .nan
+      - 13.0
+      - 0.71
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 156.0
+      - 113.0
+      - 44.2
+      - 0
+      - 130.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 35.0
+      - 137.0
+      - 36.6
+      - .nan
+      - 0
+      - 10.9
+      - .nan
+      - .nan
+      - 100.0
+      - 61.0
+      - 100.0
+      - 61.0
+      - 113.0
+      - 83.0
+      - .nan
+      - .nan
+      - 127.0
+      - 80.0
+      - 127.0
+      - 80.0
+      - 32.0
+      - 10.0
+      - 97.0
+      - 91.0
+      - .nan
+      - .nan
+      - 173.0
+      - 107.0
+      - 173.0
+      - 107.0
+      - 36.8
+      - 36.6
+      - .nan
+      - .nan
+      - 89.0
+      - 89.0
+      - 89.0
+      - 89.0
+      - 83.0
+      - 83.0
+      - .nan
+      - .nan
+      - 111.0
+      - 111.0
+      - 111.0
+      - 111.0
+      - 12.0
+      - 12.0
+      - 97.0
+      - 97.0
+      - .nan
+      - .nan
+      - 143.0
+      - 143.0
+      - 143.0
+      - 143.0
+      - 36.7
+      - 36.7
+      - .nan
+      - .nan
+      - .nan
+    - - 7
+      - 195124
+      - 83
+      - 59.0
+      - 57.45100248
+      - 0
+      - Caucasian
+      - F
+      - 165.1
+      - Operating Room
+      - Accident & Emergency
+      - 95
+      - admit
+      - Med-Surg ICU
+      - 0.000694444
+      - 0
+      - 156.6
+      - .nan
+      - 108.0
+      - 203.01
+      - 0
+      - 0
+      - .nan
+      - 18.0
+      - 0.78
+      - 1.0
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 197.0
+      - 133.0
+      - 33.5
+      - 1
+      - 138.0
+      - 43.0
+      - 43.0
+      - 370.0
+      - 7.42
+      - 53.0
+      - 135.0
+      - 35.0
+      - .nan
+      - 1
+      - 5.9
+      - 107.0
+      - 65.0
+      - 76.0
+      - 68.0
+      - 76.0
+      - 68.0
+      - 112.0
+      - 70.0
+      - 138.0
+      - 84.0
+      - 117.0
+      - 97.0
+      - 117.0
+      - 97.0
+      - 38.0
+      - 16.0
+      - 100.0
+      - 87.0
+      - 191.0
+      - 116.0
+      - 151.0
+      - 133.0
+      - 151.0
+      - 133.0
+      - 37.2
+      - 35.0
+      - 107.0
+      - 79.0
+      - 107.0
+      - 79.0
+      - .nan
+      - .nan
+      - 79.0
+      - 72.0
+      - 138.0
+      - 115.0
+      - 117.0
+      - 117.0
+      - 117.0
+      - 117.0
+      - 18.0
+      - 18.0
+      - 100.0
+      - 100.0
+      - 191.0
+      - 163.0
+      - 191.0
+      - 163.0
+      - .nan
+      - .nan
+      - 36.8
+      - 35.0
+      - .nan
+      - .nan
+      - .nan
+    - - 8
+      - 179261
+      - 33
+      - 70.0
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 165.0
+      - Emergency Department
+      - Accident & Emergency
+      - 91
+      - admit
+      - Med-Surg ICU
+      - 0.002083333
+      - 0
+      - .nan
+      - .nan
+      - 113.0
+      - 501.05
+      - 0
+      - 0
+      - .nan
+      - 48.0
+      - 2.05
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 164.0
+      - 120.0
+      - 22.6
+      - 0
+      - 60.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 28.0
+      - 140.0
+      - 36.6
+      - .nan
+      - 1
+      - 12.8
+      - .nan
+      - .nan
+      - 84.0
+      - 46.0
+      - 84.0
+      - 46.0
+      - 118.0
+      - 86.0
+      - .nan
+      - .nan
+      - 114.0
+      - 60.0
+      - 114.0
+      - 60.0
+      - 28.0
+      - 12.0
+      - 100.0
+      - 92.0
+      - .nan
+      - .nan
+      - 147.0
+      - 71.0
+      - 147.0
+      - 71.0
+      - 38.5
+      - 36.6
+      - .nan
+      - .nan
+      - 74.0
+      - 55.0
+      - 74.0
+      - 55.0
+      - 118.0
+      - 114.0
+      - .nan
+      - .nan
+      - 88.0
+      - 60.0
+      - 88.0
+      - 60.0
+      - 28.0
+      - 26.0
+      - 96.0
+      - 92.0
+      - .nan
+      - .nan
+      - 119.0
+      - 106.0
+      - 119.0
+      - 106.0
+      - 38.5
+      - 38.5
+      - .nan
+      - .nan
+      - .nan
+    - - 9
+      - 271041
+      - 118
+      - 45.0
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 170.2
+      - Other Hospital
+      - Other Hospital
+      - 114
+      - admit
+      - CCU-CTICU
+      - 0.009027778
+      - 0
+      - .nan
+      - 2.7
+      - 116.0
+      - 103.01
+      - 0
+      - 0
+      - 0.2
+      - 15.0
+      - 1.16
+      - 1.0
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 380.0
+      - 82.0
+      - 37.9
+      - 0
+      - 66.0
+      - 60.0
+      - 60.0
+      - 92.0
+      - 7.14
+      - 14.0
+      - 142.0
+      - 36.9
+      - .nan
+      - 1
+      - 24.7
+      - 64.0
+      - 52.0
+      - 65.0
+      - 59.0
+      - 65.0
+      - 59.0
+      - 82.0
+      - 82.0
+      - 72.0
+      - 66.0
+      - 93.0
+      - 71.0
+      - 93.0
+      - 71.0
+      - 24.0
+      - 19.0
+      - 97.0
+      - 97.0
+      - 94.0
+      - 72.0
+      - 104.0
+      - 98.0
+      - 104.0
+      - 98.0
+      - 36.9
+      - 36.9
+      - 64.0
+      - 52.0
+      - 65.0
+      - 59.0
+      - 65.0
+      - 59.0
+      - 82.0
+      - 82.0
+      - 72.0
+      - 66.0
+      - 93.0
+      - 71.0
+      - 93.0
+      - 71.0
+      - 24.0
+      - 19.0
+      - 97.0
+      - 97.0
+      - 94.0
+      - 72.0
+      - 104.0
+      - 98.0
+      - 104.0
+      - 98.0
+      - 36.9
+      - 36.9
+      - 2.7
+      - 2.7
+      - 0.2
+    - - 10
+      - 238874
+      - 118
+      - 50.0
+      - 25.70770213
+      - 0
+      - .nan
+      - M
+      - 175.3
+      - Direct Admit
+      - Accident & Emergency
+      - 114
+      - admit
+      - CCU-CTICU
+      - 0.060416667
+      - 0
+      - 79.0
+      - 3.6
+      - 112.0
+      - 107.01
+      - 0
+      - 0
+      - 0.4
+      - 10.0
+      - 0.83
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 134.0
+      - 94.0
+      - 37.2
+      - 0
+      - 58.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 46.0
+      - 139.0
+      - 36.3
+      - .nan
+      - 0
+      - 8.4
+      - 74.0
+      - 57.0
+      - 83.0
+      - 48.0
+      - 83.0
+      - 48.0
+      - 96.0
+      - 57.0
+      - 92.0
+      - 73.0
+      - 101.0
+      - 59.0
+      - 101.0
+      - 59.0
+      - 44.0
+      - 14.0
+      - 100.0
+      - 96.0
+      - 126.0
+      - 103.0
+      - 135.0
+      - 78.0
+      - 135.0
+      - 78.0
+      - 37.1
+      - 36.4
+      - 73.0
+      - 62.0
+      - 83.0
+      - 61.0
+      - 83.0
+      - 61.0
+      - 96.0
+      - 60.0
+      - 92.0
+      - 78.0
+      - 101.0
+      - 77.0
+      - 101.0
+      - 77.0
+      - 29.0
+      - 17.0
+      - 100.0
+      - 96.0
+      - 126.0
+      - 106.0
+      - 135.0
+      - 103.0
+      - 135.0
+      - 103.0
+      - 36.9
+      - 36.9
+      - 3.6
+      - 3.6
+      - 0.4
+    - - 11
+      - 260801
+      - 77
+      - 72.0
+      - 28.25705249
+      - 1
+      - Hispanic
+      - F
+      - 154.9
+      - Operating Room
+      - Operating Room / Recovery
+      - 113
+      - admit
+      - Med-Surg ICU
+      - 0.004861111
+      - 0
+      - 67.8
+      - .nan
+      - 303.0
+      - 1304.08
+      - 1
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - .nan
+      - 101.0
+      - .nan
+      - 0
+      - 72.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 15.0
+      - .nan
+      - 36.8
+      - .nan
+      - 0
+      - .nan
+      - 80.0
+      - 51.0
+      - 72.0
+      - 53.0
+      - 72.0
+      - 53.0
+      - 101.0
+      - 67.0
+      - 105.0
+      - 69.0
+      - 93.0
+      - 70.0
+      - 93.0
+      - 70.0
+      - 23.0
+      - 14.0
+      - 99.0
+      - 92.0
+      - 168.0
+      - 101.0
+      - 145.0
+      - 95.0
+      - 145.0
+      - 95.0
+      - 37.0
+      - 36.7
+      - 74.0
+      - 64.0
+      - 72.0
+      - 56.0
+      - 72.0
+      - 56.0
+      - 90.0
+      - 70.0
+      - 100.0
+      - 89.0
+      - 91.0
+      - 87.0
+      - 91.0
+      - 87.0
+      - 23.0
+      - 14.0
+      - 99.0
+      - 93.0
+      - 168.0
+      - 136.0
+      - 145.0
+      - 114.0
+      - 145.0
+      - 114.0
+      - 36.8
+      - 36.8
+      - .nan
+      - .nan
+      - .nan
+    - - 12
+      - 268720
+      - 83
+      - 80.0
+      - 27.3828125
+      - 1
+      - Caucasian
+      - F
+      - 160.0
+      - Operating Room
+      - Operating Room / Recovery
+      - 95
+      - admit
+      - Med-Surg ICU
+      - 1.271527778
+      - 0
+      - 70.1
+      - .nan
+      - 218.0
+      - 1505.02
+      - 1
+      - 0
+      - .nan
+      - 29.0
+      - 1.72
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 4.0
+      - 123.0
+      - 95.0
+      - .nan
+      - 0
+      - 67.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 24.0
+      - 135.0
+      - 36.4
+      - .nan
+      - 0
+      - .nan
+      - 55.0
+      - 41.0
+      - 85.0
+      - 85.0
+      - 85.0
+      - 85.0
+      - 93.0
+      - 59.0
+      - 90.0
+      - 67.0
+      - 103.0
+      - 102.0
+      - 103.0
+      - 102.0
+      - 24.0
+      - 16.0
+      - 98.0
+      - 76.0
+      - 154.0
+      - 121.0
+      - 131.0
+      - 131.0
+      - 131.0
+      - 131.0
+      - 36.9
+      - 36.4
+      - 54.0
+      - 49.0
+      - 85.0
+      - 85.0
+      - 85.0
+      - 85.0
+      - 93.0
+      - 82.0
+      - 89.0
+      - 84.0
+      - 103.0
+      - 102.0
+      - 103.0
+      - 102.0
+      - .nan
+      - .nan
+      - 97.0
+      - 87.0
+      - 151.0
+      - 139.0
+      - 131.0
+      - 131.0
+      - 131.0
+      - 131.0
+      - 36.8
+      - 36.8
+      - .nan
+      - .nan
+      - .nan
+    - - 13
+      - 203469
+      - 118
+      - 48.0
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 175.3
+      - Emergency Department
+      - Accident & Emergency
+      - 102
+      - admit
+      - Neuro ICU
+      - 0.020833333
+      - 0
+      - .nan
+      - .nan
+      - 301.0
+      - 403.01
+      - 0
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 98.0
+      - 106.0
+      - .nan
+      - 0
+      - 140.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 28.0
+      - .nan
+      - 36.6
+      - .nan
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - 123.0
+      - 65.0
+      - 123.0
+      - 65.0
+      - 106.0
+      - 66.0
+      - .nan
+      - .nan
+      - 140.0
+      - 97.0
+      - 140.0
+      - 97.0
+      - 25.0
+      - 10.0
+      - 100.0
+      - 97.0
+      - .nan
+      - .nan
+      - 163.0
+      - 111.0
+      - 163.0
+      - 111.0
+      - 36.9
+      - 36.3
+      - .nan
+      - .nan
+      - 123.0
+      - 69.0
+      - 123.0
+      - 69.0
+      - 92.0
+      - 66.0
+      - .nan
+      - .nan
+      - 140.0
+      - 112.0
+      - 140.0
+      - 112.0
+      - 24.0
+      - 16.0
+      - 99.0
+      - 98.0
+      - .nan
+      - .nan
+      - 163.0
+      - 111.0
+      - 163.0
+      - 111.0
+      - 36.7
+      - 36.6
+      - .nan
+      - .nan
+      - .nan
+    - - 14
+      - 172526
+      - 118
+      - 65.0
+      - .nan
+      - 1
+      - Caucasian
+      - M
+      - 172.7
+      - Operating Room
+      - Operating Room / Recovery
+      - 93
+      - admit
+      - Med-Surg ICU
+      - 1.045138889
+      - 0
+      - .nan
+      - 2.5
+      - 304.0
+      - 1406.01
+      - 1
+      - 0
+      - 0.4
+      - 26.0
+      - 1.13
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 119.0
+      - 120.0
+      - 33.1
+      - 0
+      - 103.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 42.0
+      - 140.0
+      - 36.6
+      - .nan
+      - 0
+      - 10.3
+      - .nan
+      - .nan
+      - 89.0
+      - 63.0
+      - 89.0
+      - 63.0
+      - 116.0
+      - 92.0
+      - .nan
+      - .nan
+      - 103.0
+      - 80.0
+      - 103.0
+      - 80.0
+      - 41.0
+      - 11.0
+      - 100.0
+      - 84.0
+      - .nan
+      - .nan
+      - 139.0
+      - 103.0
+      - 139.0
+      - 103.0
+      - 36.9
+      - 36.6
+      - .nan
+      - .nan
+      - 84.0
+      - 76.0
+      - 84.0
+      - 76.0
+      - 108.0
+      - 100.0
+      - .nan
+      - .nan
+      - 98.0
+      - 89.0
+      - 98.0
+      - 89.0
+      - 31.0
+      - 19.0
+      - 97.0
+      - 84.0
+      - .nan
+      - .nan
+      - 138.0
+      - 125.0
+      - 138.0
+      - 125.0
+      - 36.8
+      - 36.8
+      - 2.5
+      - 2.5
+      - 0.4
+    - - 15
+      - 187995
+      - 118
+      - 81.0
+      - 38.18906706
+      - 1
+      - Caucasian
+      - M
+      - 172.7
+      - Operating Room
+      - Operating Room / Recovery
+      - 97
+      - admit
+      - MICU
+      - 1.376388889
+      - 0
+      - 113.9
+      - .nan
+      - 303.0
+      - 1304.05
+      - 1
+      - 0
+      - .nan
+      - 26.0
+      - 1.11
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 120.0
+      - 119.0
+      - 25.7
+      - 0
+      - 63.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 31.0
+      - 139.0
+      - 37.1
+      - .nan
+      - 0
+      - 6.9
+      - 87.0
+      - 46.0
+      - 68.0
+      - 62.0
+      - 68.0
+      - 62.0
+      - 119.0
+      - 92.0
+      - 318.0
+      - 63.0
+      - 91.0
+      - 77.0
+      - 91.0
+      - 77.0
+      - 30.0
+      - 16.0
+      - 100.0
+      - 89.0
+      - 123.0
+      - 88.0
+      - 113.0
+      - 106.0
+      - 113.0
+      - 106.0
+      - 37.1
+      - 36.3
+      - 65.0
+      - 46.0
+      - 68.0
+      - 67.0
+      - 68.0
+      - 67.0
+      - 116.0
+      - 92.0
+      - 84.0
+      - 69.0
+      - 84.0
+      - 69.0
+      - .nan
+      - .nan
+      - 30.0
+      - 16.0
+      - 100.0
+      - 94.0
+      - 108.0
+      - 92.0
+      - 113.0
+      - 106.0
+      - 113.0
+      - 106.0
+      - 37.1
+      - 36.3
+      - .nan
+      - .nan
+      - .nan
+    - - 16
+      - 239271
+      - 118
+      - 78.0
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 160.0
+      - Emergency Department
+      - Accident & Emergency
+      - 97
+      - admit
+      - MICU
+      - 0.000694444
+      - 0
+      - .nan
+      - .nan
+      - 113.0
+      - 502.01
+      - 0
+      - 0
+      - .nan
+      - 34.0
+      - 1.68
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 90.0
+      - 82.0
+      - 24.4
+      - 0
+      - 118.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 22.0
+      - 137.0
+      - 36.6
+      - .nan
+      - 0
+      - 17.5
+      - .nan
+      - .nan
+      - 70.0
+      - 43.0
+      - 70.0
+      - 43.0
+      - 82.0
+      - 68.0
+      - .nan
+      - .nan
+      - 118.0
+      - 64.0
+      - 118.0
+      - 64.0
+      - 22.0
+      - 17.0
+      - 100.0
+      - 95.0
+      - .nan
+      - .nan
+      - 151.0
+      - 89.0
+      - 151.0
+      - 89.0
+      - 37.5
+      - 35.8
+      - .nan
+      - .nan
+      - 65.0
+      - 47.0
+      - 65.0
+      - 47.0
+      - 80.0
+      - 68.0
+      - .nan
+      - .nan
+      - 85.0
+      - 77.0
+      - 85.0
+      - 77.0
+      - 20.0
+      - 17.0
+      - 100.0
+      - 95.0
+      - .nan
+      - .nan
+      - 119.0
+      - 89.0
+      - 119.0
+      - 89.0
+      - 36.7
+      - 35.8
+      - .nan
+      - .nan
+      - .nan
+    - - 17
+      - 221028
+      - 81
+      - 30.0
+      - 23.38317807
+      - 0
+      - Caucasian
+      - M
+      - 193.0
+      - Direct Admit
+      - Accident & Emergency
+      - 90
+      - admit
+      - Med-Surg ICU
+      - 0.240972222
+      - 0
+      - 87.1
+      - .nan
+      - 302.0
+      - 109.14
+      - 0
+      - 0
+      - .nan
+      - 24.0
+      - 0.81
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 88.0
+      - 91.0
+      - 37.4
+      - 0
+      - 69.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 50.0
+      - 140.0
+      - 36.6
+      - .nan
+      - 0
+      - 6.0
+      - .nan
+      - .nan
+      - 87.0
+      - 51.0
+      - 87.0
+      - 51.0
+      - 96.0
+      - 61.0
+      - .nan
+      - .nan
+      - 108.0
+      - 69.0
+      - 108.0
+      - 69.0
+      - 35.0
+      - 9.0
+      - 100.0
+      - 96.0
+      - .nan
+      - .nan
+      - 152.0
+      - 97.0
+      - 152.0
+      - 97.0
+      - 37.5
+      - 36.5
+      - .nan
+      - .nan
+      - 79.0
+      - 76.0
+      - 79.0
+      - 76.0
+      - 75.0
+      - 66.0
+      - .nan
+      - .nan
+      - 102.0
+      - 96.0
+      - 102.0
+      - 96.0
+      - .nan
+      - .nan
+      - 99.0
+      - 96.0
+      - .nan
+      - .nan
+      - 136.0
+      - 133.0
+      - 136.0
+      - 133.0
+      - 36.5
+      - 36.5
+      - .nan
+      - .nan
+      - .nan
+    - - 18
+      - 221758
+      - 118
+      - 46.0
+      - 25.84571744
+      - 0
+      - Hispanic
+      - M
+      - 167.6
+      - Emergency Department
+      - Accident & Emergency
+      - 92
+      - admit
+      - CTICU
+      - 0.0
+      - 0
+      - 72.6
+      - .nan
+      - 108.0
+      - 203.01
+      - 0
+      - 0
+      - .nan
+      - 15.0
+      - 1.0
+      - 0.4
+      - 1.0
+      - 4.0
+      - 0.0
+      - 1.0
+      - 143.0
+      - 114.0
+      - 44.2
+      - 1
+      - 113.0
+      - 47.0
+      - 47.0
+      - 141.0
+      - 7.35
+      - 34.0
+      - 132.0
+      - 36.4
+      - .nan
+      - 1
+      - 9.7
+      - .nan
+      - .nan
+      - 89.0
+      - 61.0
+      - 89.0
+      - 61.0
+      - 98.0
+      - 64.0
+      - .nan
+      - .nan
+      - 113.0
+      - 76.0
+      - 113.0
+      - 76.0
+      - 22.0
+      - 9.0
+      - 100.0
+      - 88.0
+      - .nan
+      - .nan
+      - 169.0
+      - 102.0
+      - 169.0
+      - 102.0
+      - 37.1
+      - 36.4
+      - .nan
+      - .nan
+      - 89.0
+      - 63.0
+      - 89.0
+      - 63.0
+      - 94.0
+      - 80.0
+      - .nan
+      - .nan
+      - 104.0
+      - 88.0
+      - 104.0
+      - 88.0
+      - 21.0
+      - 9.0
+      - 99.0
+      - 95.0
+      - .nan
+      - .nan
+      - 169.0
+      - 115.0
+      - 169.0
+      - 115.0
+      - 36.6
+      - 36.6
+      - .nan
+      - .nan
+      - .nan
+    - - 19
+      - 178745
+      - 118
+      - 65.0
+      - 28.40892909
+      - 0
+      - Hispanic
+      - M
+      - 167.6
+      - Emergency Department
+      - Accident & Emergency
+      - 100
+      - admit
+      - Neuro ICU
+      - 0.0
+      - 0
+      - 79.8
+      - .nan
+      - 301.0
+      - 410.01
+      - 0
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 4.0
+      - 88.0
+      - 98.0
+      - 33.3
+      - 0
+      - 55.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 4.0
+      - .nan
+      - 36.6
+      - .nan
+      - 0
+      - 5.0
+      - .nan
+      - .nan
+      - 73.0
+      - 43.0
+      - 73.0
+      - 43.0
+      - 102.0
+      - 66.0
+      - .nan
+      - .nan
+      - 103.0
+      - 55.0
+      - 103.0
+      - 55.0
+      - 22.0
+      - 8.0
+      - 100.0
+      - 92.0
+      - .nan
+      - .nan
+      - 129.0
+      - 84.0
+      - 129.0
+      - 84.0
+      - 36.8
+      - 36.6
+      - .nan
+      - .nan
+      - 66.0
+      - 53.0
+      - 66.0
+      - 53.0
+      - 100.0
+      - 74.0
+      - .nan
+      - .nan
+      - 84.0
+      - 78.0
+      - 84.0
+      - 78.0
+      - 21.0
+      - 12.0
+      - 99.0
+      - 95.0
+      - .nan
+      - .nan
+      - 121.0
+      - 93.0
+      - 121.0
+      - 93.0
+      - 36.6
+      - 36.6
+      - .nan
+      - .nan
+      - .nan
+    - - 20
+      - 242567
+      - 118
+      - 39.0
+      - 37.0102781
+      - 1
+      - .nan
+      - M
+      - 177.8
+      - Operating Room
+      - Operating Room / Recovery
+      - 92
+      - admit
+      - CTICU
+      - 5.163888889
+      - 0
+      - 117.0
+      - .nan
+      - 203.0
+      - 1206.03
+      - 1
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - 1.0
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 199.0
+      - 176.0
+      - 28.9
+      - 1
+      - 44.0
+      - 50.0
+      - 50.0
+      - 161.0
+      - 7.26
+      - 9.0
+      - .nan
+      - 36.4
+      - .nan
+      - 1
+      - 14.6
+      - 78.0
+      - 36.0
+      - 78.0
+      - 36.0
+      - .nan
+      - .nan
+      - 176.0
+      - 70.0
+      - 116.0
+      - 44.0
+      - 116.0
+      - 44.0
+      - .nan
+      - .nan
+      - 31.0
+      - 8.0
+      - 100.0
+      - 93.0
+      - 160.0
+      - 58.0
+      - 160.0
+      - 58.0
+      - .nan
+      - .nan
+      - 37.9
+      - 36.4
+      - 78.0
+      - 62.0
+      - 78.0
+      - 62.0
+      - .nan
+      - .nan
+      - 84.0
+      - 84.0
+      - 96.0
+      - 66.0
+      - 96.0
+      - 66.0
+      - .nan
+      - .nan
+      - 18.0
+      - 13.0
+      - 99.0
+      - 93.0
+      - 146.0
+      - 110.0
+      - 146.0
+      - 110.0
+      - .nan
+      - .nan
+      - 36.4
+      - 36.4
+      - .nan
+      - .nan
+      - .nan
+  - key: raw_test_data
+    kind: dataset
+    iter: 0
+    tree: latest
+    target_path: v3io:///projects/widsdb2/artifacts/raw_test_data.csv
+    format: csv
+    size: 6744506
+    db_key: raw_test_data
+    schema:
+      fields:
+      - name: index
+        type: integer
+      - name: index
+        type: integer
+      - name: encounter_id
+        type: integer
+      - name: hospital_id
+        type: integer
+      - name: age
+        type: integer
+      - name: bmi
+        type: number
+      - name: elective_surgery
+        type: integer
+      - name: ethnicity
+        type: string
+      - name: gender
+        type: string
+      - name: height
+        type: number
+      - name: hospital_admit_source
+        type: string
+      - name: icu_admit_source
+        type: string
+      - name: icu_id
+        type: integer
+      - name: icu_stay_type
+        type: string
+      - name: icu_type
+        type: string
+      - name: pre_icu_los_days
+        type: number
+      - name: readmission_status
+        type: integer
+      - name: weight
+        type: number
+      - name: albumin_apache
+        type: number
+      - name: apache_2_diagnosis
+        type: number
+      - name: apache_3j_diagnosis
+        type: number
+      - name: apache_post_operative
+        type: integer
+      - name: arf_apache
+        type: integer
+      - name: bilirubin_apache
+        type: number
+      - name: bun_apache
+        type: number
+      - name: creatinine_apache
+        type: number
+      - name: fio2_apache
+        type: number
+      - name: gcs_eyes_apache
+        type: number
+      - name: gcs_motor_apache
+        type: number
+      - name: gcs_unable_apache
+        type: number
+      - name: gcs_verbal_apache
+        type: number
+      - name: glucose_apache
+        type: number
+      - name: heart_rate_apache
+        type: number
+      - name: hematocrit_apache
+        type: number
+      - name: intubated_apache
+        type: integer
+      - name: map_apache
+        type: number
+      - name: paco2_apache
+        type: number
+      - name: paco2_for_ph_apache
+        type: number
+      - name: pao2_apache
+        type: number
+      - name: ph_apache
+        type: number
+      - name: resprate_apache
+        type: number
+      - name: sodium_apache
+        type: number
+      - name: temp_apache
+        type: number
+      - name: urineoutput_apache
+        type: number
+      - name: ventilated_apache
+        type: integer
+      - name: wbc_apache
+        type: number
+      - name: d1_diasbp_invasive_max
+        type: number
+      - name: d1_diasbp_invasive_min
+        type: number
+      - name: d1_diasbp_max
+        type: number
+      - name: d1_diasbp_min
+        type: number
+      - name: d1_diasbp_noninvasive_max
+        type: number
+      - name: d1_diasbp_noninvasive_min
+        type: number
+      - name: d1_heartrate_max
+        type: number
+      - name: d1_heartrate_min
+        type: number
+      - name: d1_mbp_invasive_max
+        type: number
+      - name: d1_mbp_invasive_min
+        type: number
+      - name: d1_mbp_max
+        type: number
+      - name: d1_mbp_min
+        type: number
+      - name: d1_mbp_noninvasive_max
+        type: number
+      - name: d1_mbp_noninvasive_min
+        type: number
+      - name: d1_resprate_max
+        type: number
+      - name: d1_resprate_min
+        type: number
+      - name: d1_spo2_max
+        type: number
+      - name: d1_spo2_min
+        type: number
+      - name: d1_sysbp_invasive_max
+        type: number
+      - name: d1_sysbp_invasive_min
+        type: number
+      - name: d1_sysbp_max
+        type: number
+      - name: d1_sysbp_min
+        type: number
+      - name: d1_sysbp_noninvasive_max
+        type: number
+      - name: d1_sysbp_noninvasive_min
+        type: number
+      - name: d1_temp_max
+        type: number
+      - name: d1_temp_min
+        type: number
+      - name: h1_diasbp_invasive_max
+        type: number
+      - name: h1_diasbp_invasive_min
+        type: number
+      - name: h1_diasbp_max
+        type: number
+      - name: h1_diasbp_min
+        type: number
+      - name: h1_diasbp_noninvasive_max
+        type: number
+      - name: h1_diasbp_noninvasive_min
+        type: number
+      - name: h1_heartrate_max
+        type: number
+      - name: h1_heartrate_min
+        type: number
+      - name: h1_mbp_invasive_max
+        type: number
+      - name: h1_mbp_invasive_min
+        type: number
+      - name: h1_mbp_max
+        type: number
+      - name: h1_mbp_min
+        type: number
+      - name: h1_mbp_noninvasive_max
+        type: number
+      - name: h1_mbp_noninvasive_min
+        type: number
+      - name: h1_resprate_max
+        type: number
+      - name: h1_resprate_min
+        type: number
+      - name: h1_spo2_max
+        type: number
+      - name: h1_spo2_min
+        type: number
+      - name: h1_sysbp_invasive_max
+        type: number
+      - name: h1_sysbp_invasive_min
+        type: number
+      - name: h1_sysbp_max
+        type: number
+      - name: h1_sysbp_min
+        type: number
+      - name: h1_sysbp_noninvasive_max
+        type: number
+      - name: h1_sysbp_noninvasive_min
+        type: number
+      - name: h1_temp_max
+        type: number
+      - name: h1_temp_min
+        type: number
+      - name: d1_albumin_max
+        type: number
+      - name: d1_albumin_min
+        type: number
+      - name: d1_bilirubin_max
+        type: number
+      primaryKey:
+      - index
+      pandas_version: 0.20.0
+    header:
+    - index
+    - encounter_id
+    - hospital_id
+    - age
+    - bmi
+    - elective_surgery
+    - ethnicity
+    - gender
+    - height
+    - hospital_admit_source
+    - icu_admit_source
+    - icu_id
+    - icu_stay_type
+    - icu_type
+    - pre_icu_los_days
+    - readmission_status
+    - weight
+    - albumin_apache
+    - apache_2_diagnosis
+    - apache_3j_diagnosis
+    - apache_post_operative
+    - arf_apache
+    - bilirubin_apache
+    - bun_apache
+    - creatinine_apache
+    - fio2_apache
+    - gcs_eyes_apache
+    - gcs_motor_apache
+    - gcs_unable_apache
+    - gcs_verbal_apache
+    - glucose_apache
+    - heart_rate_apache
+    - hematocrit_apache
+    - intubated_apache
+    - map_apache
+    - paco2_apache
+    - paco2_for_ph_apache
+    - pao2_apache
+    - ph_apache
+    - resprate_apache
+    - sodium_apache
+    - temp_apache
+    - urineoutput_apache
+    - ventilated_apache
+    - wbc_apache
+    - d1_diasbp_invasive_max
+    - d1_diasbp_invasive_min
+    - d1_diasbp_max
+    - d1_diasbp_min
+    - d1_diasbp_noninvasive_max
+    - d1_diasbp_noninvasive_min
+    - d1_heartrate_max
+    - d1_heartrate_min
+    - d1_mbp_invasive_max
+    - d1_mbp_invasive_min
+    - d1_mbp_max
+    - d1_mbp_min
+    - d1_mbp_noninvasive_max
+    - d1_mbp_noninvasive_min
+    - d1_resprate_max
+    - d1_resprate_min
+    - d1_spo2_max
+    - d1_spo2_min
+    - d1_sysbp_invasive_max
+    - d1_sysbp_invasive_min
+    - d1_sysbp_max
+    - d1_sysbp_min
+    - d1_sysbp_noninvasive_max
+    - d1_sysbp_noninvasive_min
+    - d1_temp_max
+    - d1_temp_min
+    - h1_diasbp_invasive_max
+    - h1_diasbp_invasive_min
+    - h1_diasbp_max
+    - h1_diasbp_min
+    - h1_diasbp_noninvasive_max
+    - h1_diasbp_noninvasive_min
+    - h1_heartrate_max
+    - h1_heartrate_min
+    - h1_mbp_invasive_max
+    - h1_mbp_invasive_min
+    - h1_mbp_max
+    - h1_mbp_min
+    - h1_mbp_noninvasive_max
+    - h1_mbp_noninvasive_min
+    - h1_resprate_max
+    - h1_resprate_min
+    - h1_spo2_max
+    - h1_spo2_min
+    - h1_sysbp_invasive_max
+    - h1_sysbp_invasive_min
+    - h1_sysbp_max
+    - h1_sysbp_min
+    - h1_sysbp_noninvasive_max
+    - h1_sysbp_noninvasive_min
+    - h1_temp_max
+    - h1_temp_min
+    - d1_albumin_max
+    - d1_albumin_min
+    - d1_bilirubin_max
+    length: 10234
+    preview:
+    - - 1
+      - 144740
+      - 10141
+      - 72
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 152.4
+      - Floor
+      - Accident & Emergency
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.015277778
+      - 0
+      - .nan
+      - 2.8
+      - 110.0
+      - 104.01
+      - 0
+      - 0
+      - 1.9
+      - 44.0
+      - 1.49
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 97.0
+      - 38.0
+      - 39.9
+      - 0
+      - 54.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 31.0
+      - 130.0
+      - 36.4
+      - .nan
+      - 0
+      - 5.4
+      - .nan
+      - .nan
+      - 104.0
+      - 40.0
+      - 104.0
+      - 40.0
+      - 66.0
+      - 38.0
+      - .nan
+      - .nan
+      - 123.0
+      - 54.0
+      - 123.0
+      - 54.0
+      - 35.0
+      - 15.0
+      - 100.0
+      - 96.0
+      - .nan
+      - .nan
+      - 149.0
+      - 76.0
+      - 149.0
+      - 76.0
+      - 38.7
+      - 35.6
+      - .nan
+      - .nan
+      - 59.0
+      - 59.0
+      - 59.0
+      - 59.0
+      - 46.0
+      - 44.0
+      - .nan
+      - .nan
+      - 80.0
+      - 80.0
+      - 80.0
+      - 80.0
+      - 19.0
+      - 19.0
+      - 97.0
+      - 96.0
+      - .nan
+      - .nan
+      - 116.0
+      - 116.0
+      - 116.0
+      - 116.0
+      - 36.4
+      - 36.4
+      - 2.8
+      - 2.8
+      - 1.9
+    - - 2
+      - 141990
+      - 10141
+      - 86
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 175.3
+      - Emergency Department
+      - Accident & Emergency
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.0
+      - 0
+      - .nan
+      - .nan
+      - 117.0
+      - 106.01
+      - 0
+      - 0
+      - .nan
+      - 19.0
+      - 0.92
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 73.0
+      - 116.0
+      - .nan
+      - 0
+      - 41.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 53.0
+      - 142.0
+      - 36.3
+      - .nan
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - 101.0
+      - 27.0
+      - 101.0
+      - 27.0
+      - 116.0
+      - 56.0
+      - .nan
+      - .nan
+      - 129.0
+      - 41.0
+      - 129.0
+      - 41.0
+      - 51.0
+      - 14.0
+      - 100.0
+      - 95.0
+      - .nan
+      - .nan
+      - 181.0
+      - 65.0
+      - 181.0
+      - 65.0
+      - 36.8
+      - 36.4
+      - .nan
+      - .nan
+      - 85.0
+      - 65.0
+      - 85.0
+      - 65.0
+      - 116.0
+      - 104.0
+      - .nan
+      - .nan
+      - 129.0
+      - 94.0
+      - 129.0
+      - 94.0
+      - 31.0
+      - 24.0
+      - 97.0
+      - 95.0
+      - .nan
+      - .nan
+      - 181.0
+      - 119.0
+      - 181.0
+      - 119.0
+      - 36.7
+      - 36.7
+      - .nan
+      - .nan
+      - .nan
+    - - 3
+      - 142038
+      - 10141
+      - 72
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 162.6
+      - Floor
+      - Floor
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.003472222
+      - 0
+      - .nan
+      - 3.2
+      - 302.0
+      - 109.01
+      - 0
+      - 0
+      - 0.9
+      - 24.0
+      - 0.77
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 84.0
+      - 104.0
+      - 34.8
+      - 0
+      - 117.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 38.0
+      - 137.0
+      - 36.4
+      - .nan
+      - 0
+      - 4.6
+      - .nan
+      - .nan
+      - 97.0
+      - 61.0
+      - 97.0
+      - 61.0
+      - 98.0
+      - 68.0
+      - .nan
+      - .nan
+      - 117.0
+      - 77.0
+      - 117.0
+      - 77.0
+      - 49.0
+      - 8.0
+      - 99.0
+      - 85.0
+      - .nan
+      - .nan
+      - 146.0
+      - 103.0
+      - 146.0
+      - 103.0
+      - 36.9
+      - 35.9
+      - .nan
+      - .nan
+      - 97.0
+      - 97.0
+      - 97.0
+      - 97.0
+      - 98.0
+      - 92.0
+      - .nan
+      - .nan
+      - 117.0
+      - 117.0
+      - 117.0
+      - 117.0
+      - 20.0
+      - 20.0
+      - 99.0
+      - 96.0
+      - .nan
+      - .nan
+      - 146.0
+      - 146.0
+      - 146.0
+      - 146.0
+      - 36.4
+      - 36.4
+      - 3.7
+      - 3.2
+      - 0.9
+    - - 4
+      - 138628
+      - 10141
+      - 66
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 177.8
+      - Floor
+      - Floor
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.884027778
+      - 0
+      - .nan
+      - .nan
+      - 113.0
+      - 501.05
+      - 0
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 4.0
+      - .nan
+      - 110.0
+      - .nan
+      - 0
+      - 61.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 56.0
+      - .nan
+      - 36.6
+      - .nan
+      - 1
+      - .nan
+      - .nan
+      - .nan
+      - 77.0
+      - 51.0
+      - 77.0
+      - 51.0
+      - 110.0
+      - 86.0
+      - .nan
+      - .nan
+      - 110.0
+      - 61.0
+      - 110.0
+      - 61.0
+      - 56.0
+      - 19.0
+      - 99.0
+      - 80.0
+      - .nan
+      - .nan
+      - 145.0
+      - 95.0
+      - 145.0
+      - 95.0
+      - 37.8
+      - 36.6
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 107.0
+      - 95.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 56.0
+      - 28.0
+      - 95.0
+      - 90.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 37.8
+      - 37.0
+      - 2.0
+      - 2.0
+      - 1.1
+    - - 5
+      - 141682
+      - 10141
+      - 89
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 170.2
+      - Direct Admit
+      - Accident & Emergency
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.013194444
+      - 0
+      - .nan
+      - 3.4
+      - 117.0
+      - 106.01
+      - 0
+      - 0
+      - 0.4
+      - 26.0
+      - 1.5
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 99.0
+      - 34.0
+      - 33.0
+      - 0
+      - 136.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 35.0
+      - 133.0
+      - 36.5
+      - .nan
+      - 0
+      - 5.2
+      - .nan
+      - .nan
+      - 88.0
+      - 49.0
+      - 88.0
+      - 49.0
+      - 58.0
+      - 34.0
+      - .nan
+      - .nan
+      - 136.0
+      - 71.0
+      - 136.0
+      - 71.0
+      - 49.0
+      - 9.0
+      - 100.0
+      - 93.0
+      - .nan
+      - .nan
+      - 194.0
+      - 114.0
+      - 194.0
+      - 114.0
+      - 36.7
+      - 35.8
+      - .nan
+      - .nan
+      - 70.0
+      - 66.0
+      - 70.0
+      - 66.0
+      - 48.0
+      - 44.0
+      - .nan
+      - .nan
+      - 102.0
+      - 89.0
+      - 102.0
+      - 89.0
+      - 26.0
+      - 20.0
+      - 97.0
+      - 94.0
+      - .nan
+      - .nan
+      - 145.0
+      - 142.0
+      - 145.0
+      - 142.0
+      - 36.6
+      - 36.6
+      - 3.4
+      - 3.4
+      - 0.4
+    - - 6
+      - 139096
+      - 10141
+      - 75
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 172.7
+      - Emergency Department
+      - Accident & Emergency
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.002777778
+      - 0
+      - .nan
+      - 3.4
+      - 117.0
+      - 106.01
+      - 0
+      - 0
+      - 1.1
+      - 29.0
+      - 1.51
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 136.0
+      - 132.0
+      - 36.6
+      - 0
+      - 58.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 40.0
+      - 139.0
+      - 36.7
+      - .nan
+      - 0
+      - 8.6
+      - .nan
+      - .nan
+      - 107.0
+      - 48.0
+      - 107.0
+      - 48.0
+      - 134.0
+      - 62.0
+      - .nan
+      - .nan
+      - 118.0
+      - 58.0
+      - 118.0
+      - 58.0
+      - 34.0
+      - 15.0
+      - 99.0
+      - 94.0
+      - .nan
+      - .nan
+      - 152.0
+      - 71.0
+      - 152.0
+      - 71.0
+      - 37.3
+      - 36.7
+      - .nan
+      - .nan
+      - 97.0
+      - 97.0
+      - 97.0
+      - 97.0
+      - 102.0
+      - 80.0
+      - .nan
+      - .nan
+      - 112.0
+      - 112.0
+      - 112.0
+      - 112.0
+      - 24.0
+      - 15.0
+      - 98.0
+      - 94.0
+      - .nan
+      - .nan
+      - 137.0
+      - 137.0
+      - 137.0
+      - 137.0
+      - 36.7
+      - 36.7
+      - 3.4
+      - 3.4
+      - 1.1
+    - - 7
+      - 142994
+      - 10141
+      - 38
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - .nan
+      - Floor
+      - Floor
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 15.88888889
+      - 0
+      - .nan
+      - 2.0
+      - 110.0
+      - 104.01
+      - 0
+      - 0
+      - 0.3
+      - 37.0
+      - 2.9
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 74.0
+      - 92.0
+      - 27.7
+      - 0
+      - 52.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 35.0
+      - 137.0
+      - 36.0
+      - .nan
+      - 0
+      - 9.0
+      - .nan
+      - .nan
+      - 84.0
+      - 50.0
+      - 84.0
+      - 50.0
+      - 92.0
+      - 74.0
+      - .nan
+      - .nan
+      - 111.0
+      - 52.0
+      - 111.0
+      - 52.0
+      - 35.0
+      - 14.0
+      - 99.0
+      - 93.0
+      - .nan
+      - .nan
+      - 156.0
+      - 82.0
+      - 156.0
+      - 82.0
+      - 36.8
+      - 36.0
+      - .nan
+      - .nan
+      - 79.0
+      - 79.0
+      - 79.0
+      - 79.0
+      - 88.0
+      - 88.0
+      - .nan
+      - .nan
+      - 87.0
+      - 87.0
+      - 87.0
+      - 87.0
+      - 26.0
+      - 14.0
+      - 98.0
+      - 96.0
+      - .nan
+      - .nan
+      - 113.0
+      - 113.0
+      - 113.0
+      - 113.0
+      - 36.0
+      - 36.0
+      - 2.0
+      - 2.0
+      - 0.3
+    - - 8
+      - 141954
+      - 10141
+      - 87
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 152.4
+      - Floor
+      - Floor
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.056944444
+      - 0
+      - .nan
+      - .nan
+      - 124.0
+      - 305.02
+      - 0
+      - 0
+      - .nan
+      - 54.0
+      - 0.98
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 99.0
+      - 60.0
+      - 22.2
+      - 0
+      - 57.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 32.0
+      - 142.0
+      - 36.7
+      - .nan
+      - 0
+      - 7.4
+      - .nan
+      - .nan
+      - 73.0
+      - 41.0
+      - 73.0
+      - 41.0
+      - 77.0
+      - 52.0
+      - .nan
+      - .nan
+      - 100.0
+      - 57.0
+      - 100.0
+      - 57.0
+      - 43.0
+      - 11.0
+      - 100.0
+      - 96.0
+      - .nan
+      - .nan
+      - 149.0
+      - 81.0
+      - 149.0
+      - 81.0
+      - 37.6
+      - 36.1
+      - .nan
+      - .nan
+      - 47.0
+      - 42.0
+      - 47.0
+      - 42.0
+      - 76.0
+      - 72.0
+      - .nan
+      - .nan
+      - 68.0
+      - 57.0
+      - 68.0
+      - 57.0
+      - 21.0
+      - 18.0
+      - 98.0
+      - 96.0
+      - .nan
+      - .nan
+      - 99.0
+      - 81.0
+      - 99.0
+      - 81.0
+      - 36.7
+      - 36.7
+      - .nan
+      - .nan
+      - .nan
+    - - 9
+      - 135344
+      - 10141
+      - 85
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 172.7
+      - .nan
+      - Floor
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.225
+      - 0
+      - .nan
+      - 1.8
+      - 113.0
+      - 501.05
+      - 0
+      - 0
+      - 0.6
+      - 34.0
+      - 1.44
+      - .nan
+      - 3.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 264.0
+      - 100.0
+      - 37.2
+      - 0
+      - 44.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 53.0
+      - 141.0
+      - 36.0
+      - .nan
+      - 1
+      - 15.0
+      - .nan
+      - .nan
+      - 60.0
+      - 37.0
+      - 60.0
+      - 37.0
+      - 100.0
+      - 0.0
+      - .nan
+      - .nan
+      - 85.0
+      - 42.0
+      - 85.0
+      - 42.0
+      - 53.0
+      - 0.0
+      - 100.0
+      - 54.0
+      - .nan
+      - .nan
+      - 116.0
+      - 54.0
+      - 116.0
+      - 54.0
+      - 36.2
+      - 36.0
+      - .nan
+      - .nan
+      - 53.0
+      - 39.0
+      - 53.0
+      - 39.0
+      - 66.0
+      - 58.0
+      - .nan
+      - .nan
+      - 66.0
+      - 44.0
+      - 66.0
+      - 44.0
+      - 30.0
+      - 30.0
+      - 95.0
+      - 91.0
+      - .nan
+      - .nan
+      - 97.0
+      - 85.0
+      - 97.0
+      - 85.0
+      - 36.0
+      - 36.0
+      - 1.8
+      - 1.8
+      - 0.6
+    - - 10
+      - 142552
+      - 10141
+      - 64
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 182.9
+      - Floor
+      - Floor
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.066666667
+      - 0
+      - .nan
+      - 2.7
+      - 113.0
+      - 502.01
+      - 0
+      - 0
+      - 0.6
+      - 53.0
+      - 2.43
+      - 0.51
+      - 1.0
+      - 4.0
+      - 0.0
+      - 1.0
+      - 388.0
+      - 160.0
+      - 26.8
+      - 0
+      - 169.0
+      - 33.0
+      - 33.0
+      - 102.0
+      - 7.35
+      - 43.0
+      - 141.0
+      - 36.0
+      - .nan
+      - 0
+      - 22.8
+      - .nan
+      - .nan
+      - 79.0
+      - 39.0
+      - 79.0
+      - 39.0
+      - 104.0
+      - 64.0
+      - .nan
+      - .nan
+      - 106.0
+      - 46.0
+      - 106.0
+      - 46.0
+      - 39.0
+      - 9.0
+      - 99.0
+      - 91.0
+      - .nan
+      - .nan
+      - 148.0
+      - 73.0
+      - 148.0
+      - 73.0
+      - 36.6
+      - 36.0
+      - .nan
+      - .nan
+      - 63.0
+      - 42.0
+      - 63.0
+      - 42.0
+      - 104.0
+      - 90.0
+      - .nan
+      - .nan
+      - 60.0
+      - 48.0
+      - 60.0
+      - 48.0
+      - 23.0
+      - 9.0
+      - 97.0
+      - 94.0
+      - .nan
+      - .nan
+      - 100.0
+      - 73.0
+      - 100.0
+      - 73.0
+      - 36.6
+      - 36.6
+      - .nan
+      - .nan
+      - .nan
+    - - 11
+      - 139615
+      - 10141
+      - 53
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 165.1
+      - Emergency Department
+      - Accident & Emergency
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.002083333
+      - 0
+      - .nan
+      - 3.2
+      - 122.0
+      - 703.03
+      - 0
+      - 0
+      - 0.3
+      - 5.0
+      - 0.78
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 101.0
+      - 106.0
+      - .nan
+      - 0
+      - 54.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 47.0
+      - 140.0
+      - 36.0
+      - .nan
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - 89.0
+      - 47.0
+      - 89.0
+      - 47.0
+      - 108.0
+      - 78.0
+      - .nan
+      - .nan
+      - 102.0
+      - 54.0
+      - 102.0
+      - 54.0
+      - 30.0
+      - 6.0
+      - 99.0
+      - 91.0
+      - .nan
+      - .nan
+      - 134.0
+      - 80.0
+      - 134.0
+      - 80.0
+      - 37.6
+      - 36.0
+      - .nan
+      - .nan
+      - 70.0
+      - 58.0
+      - 70.0
+      - 58.0
+      - 86.0
+      - 80.0
+      - .nan
+      - .nan
+      - 82.0
+      - 69.0
+      - 82.0
+      - 69.0
+      - 26.0
+      - 14.0
+      - 96.0
+      - 91.0
+      - .nan
+      - .nan
+      - 110.0
+      - 98.0
+      - 110.0
+      - 98.0
+      - 36.0
+      - 36.0
+      - 3.2
+      - 3.2
+      - 0.3
+    - - 12
+      - 137192
+      - 10141
+      - 84
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 154.9
+      - Floor
+      - Floor
+      - 82
+      - admit
+      - Med-Surg ICU
+      - 0.331944444
+      - 0
+      - .nan
+      - 2.4
+      - 113.0
+      - 501.02
+      - 0
+      - 0
+      - 3.6
+      - 38.0
+      - 1.71
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 75.0
+      - 118.0
+      - 37.1
+      - 0
+      - 48.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 47.0
+      - 133.0
+      - 36.7
+      - .nan
+      - 0
+      - 30.7
+      - .nan
+      - .nan
+      - 71.0
+      - 43.0
+      - 71.0
+      - 43.0
+      - 114.0
+      - 70.0
+      - .nan
+      - .nan
+      - 88.0
+      - 48.0
+      - 88.0
+      - 48.0
+      - 47.0
+      - 6.0
+      - 98.0
+      - 84.0
+      - .nan
+      - .nan
+      - 104.0
+      - 61.0
+      - 104.0
+      - 61.0
+      - 37.8
+      - 36.7
+      - .nan
+      - .nan
+      - 50.0
+      - 43.0
+      - 50.0
+      - 43.0
+      - 106.0
+      - 82.0
+      - .nan
+      - .nan
+      - 60.0
+      - 48.0
+      - 60.0
+      - 48.0
+      - 18.0
+      - 14.0
+      - 94.0
+      - 84.0
+      - .nan
+      - .nan
+      - 90.0
+      - 69.0
+      - 90.0
+      - 69.0
+      - 37.8
+      - 36.8
+      - 2.4
+      - 2.3
+      - 3.6
+    - - 13
+      - 136646
+      - 10104
+      - 21
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 162.5
+      - Emergency Department
+      - Accident & Emergency
+      - 108
+      - admit
+      - Med-Surg ICU
+      - 0.213194444
+      - 0
+      - .nan
+      - .nan
+      - 303.0
+      - 208.01
+      - 0
+      - 0
+      - .nan
+      - 9.0
+      - 1.2
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 74.0
+      - 147.0
+      - 42.1
+      - 0
+      - 51.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 47.0
+      - 139.0
+      - 36.78
+      - .nan
+      - 0
+      - 20.0
+      - .nan
+      - .nan
+      - 68.0
+      - 48.0
+      - 68.0
+      - 48.0
+      - 145.0
+      - 100.0
+      - .nan
+      - .nan
+      - 91.0
+      - 51.0
+      - 91.0
+      - 51.0
+      - 43.0
+      - 16.0
+      - 100.0
+      - 94.0
+      - .nan
+      - .nan
+      - 115.0
+      - 87.0
+      - 115.0
+      - 87.0
+      - 38.9
+      - 36.3
+      - .nan
+      - .nan
+      - 48.0
+      - 48.0
+      - 48.0
+      - 48.0
+      - 145.0
+      - 144.0
+      - .nan
+      - .nan
+      - 80.0
+      - 51.0
+      - 80.0
+      - 51.0
+      - 43.0
+      - 43.0
+      - 95.0
+      - 95.0
+      - .nan
+      - .nan
+      - 87.0
+      - 87.0
+      - 87.0
+      - 87.0
+      - 38.9
+      - 38.9
+      - .nan
+      - .nan
+      - .nan
+    - - 14
+      - 136743
+      - 10104
+      - 73
+      - .nan
+      - 0
+      - .nan
+      - F
+      - 160.0
+      - Emergency Department
+      - Accident & Emergency
+      - 108
+      - admit
+      - Med-Surg ICU
+      - 0.002083333
+      - 0
+      - .nan
+      - 2.3
+      - 301.0
+      - 403.01
+      - 0
+      - 0
+      - 1.0
+      - 17.0
+      - 1.5
+      - 0.7
+      - 2.0
+      - 4.0
+      - 0.0
+      - 1.0
+      - 253.0
+      - 128.0
+      - 34.4
+      - 1
+      - 198.0
+      - 37.0
+      - 37.0
+      - 71.0
+      - 7.17
+      - 20.0
+      - 131.0
+      - .nan
+      - .nan
+      - 1
+      - 3.4
+      - 70.0
+      - 40.0
+      - 64.0
+      - 35.0
+      - 64.0
+      - 35.0
+      - 116.0
+      - 62.0
+      - 257.0
+      - 50.0
+      - 175.0
+      - 24.0
+      - 175.0
+      - 24.0
+      - 47.0
+      - 12.0
+      - 100.0
+      - 42.0
+      - 110.0
+      - 72.0
+      - 119.0
+      - 73.0
+      - 119.0
+      - 73.0
+      - 35.9
+      - 35.5
+      - .nan
+      - .nan
+      - 54.0
+      - 50.0
+      - 54.0
+      - 50.0
+      - 70.0
+      - 62.0
+      - .nan
+      - .nan
+      - 78.0
+      - 70.0
+      - 78.0
+      - 70.0
+      - 23.0
+      - 21.0
+      - 98.0
+      - 98.0
+      - .nan
+      - .nan
+      - 93.0
+      - 85.0
+      - 93.0
+      - 85.0
+      - .nan
+      - .nan
+      - 2.3
+      - 2.3
+      - 1.0
+    - - 15
+      - 142796
+      - 10104
+      - 87
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 166.3
+      - Emergency Department
+      - Accident & Emergency
+      - 108
+      - admit
+      - Med-Surg ICU
+      - 0.102777778
+      - 0
+      - .nan
+      - 2.9
+      - 117.0
+      - 106.01
+      - 0
+      - 0
+      - 0.7
+      - 91.0
+      - 3.8
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 4.0
+      - 254.0
+      - 52.0
+      - 32.3
+      - 0
+      - 197.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 34.0
+      - 134.0
+      - 36.3
+      - .nan
+      - 0
+      - 12.5
+      - .nan
+      - .nan
+      - 79.0
+      - 46.0
+      - 79.0
+      - 46.0
+      - 82.0
+      - 58.0
+      - .nan
+      - .nan
+      - 189.0
+      - 36.0
+      - 182.0
+      - 36.0
+      - 28.0
+      - 10.0
+      - 100.0
+      - 95.0
+      - .nan
+      - .nan
+      - 119.0
+      - 66.0
+      - 119.0
+      - 66.0
+      - 36.7
+      - 36.3
+      - .nan
+      - .nan
+      - 69.0
+      - 32.0
+      - 69.0
+      - 32.0
+      - 76.0
+      - 56.0
+      - .nan
+      - .nan
+      - 91.0
+      - 47.0
+      - 91.0
+      - 47.0
+      - 20.0
+      - 20.0
+      - 100.0
+      - 97.0
+      - .nan
+      - .nan
+      - 124.0
+      - 95.0
+      - 124.0
+      - 95.0
+      - 36.3
+      - 36.3
+      - 2.9
+      - 2.9
+      - 0.7
+    - - 16
+      - 144221
+      - 10104
+      - 73
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 157.5
+      - Emergency Department
+      - Accident & Emergency
+      - 108
+      - admit
+      - Med-Surg ICU
+      - 0.001388889
+      - 0
+      - .nan
+      - .nan
+      - 117.0
+      - 106.01
+      - 0
+      - 0
+      - .nan
+      - 8.0
+      - 0.8
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 91.0
+      - 60.0
+      - 34.0
+      - 0
+      - 52.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 36.0
+      - 137.0
+      - 37.1
+      - .nan
+      - 0
+      - 10.2
+      - .nan
+      - .nan
+      - 84.0
+      - 39.0
+      - 84.0
+      - 39.0
+      - 83.0
+      - 60.0
+      - .nan
+      - .nan
+      - 101.0
+      - 52.0
+      - 101.0
+      - 52.0
+      - 33.0
+      - 13.0
+      - 100.0
+      - 85.0
+      - .nan
+      - .nan
+      - 132.0
+      - 76.0
+      - 132.0
+      - 76.0
+      - 37.2
+      - 36.8
+      - .nan
+      - .nan
+      - 74.0
+      - 39.0
+      - 74.0
+      - 39.0
+      - 64.0
+      - 60.0
+      - .nan
+      - .nan
+      - 79.0
+      - 52.0
+      - 79.0
+      - 52.0
+      - 27.0
+      - 18.0
+      - 99.0
+      - 97.0
+      - .nan
+      - .nan
+      - 123.0
+      - 76.0
+      - 123.0
+      - 76.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+    - - 17
+      - 142386
+      - 10104
+      - 32
+      - .nan
+      - 0
+      - Caucasian
+      - M
+      - 190.5
+      - Emergency Department
+      - Accident & Emergency
+      - 108
+      - admit
+      - Med-Surg ICU
+      - 0.007638889
+      - 0
+      - .nan
+      - 3.3
+      - 122.0
+      - 703.03
+      - 0
+      - 0
+      - 0.6
+      - 9.0
+      - 1.1
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - 72.0
+      - 92.0
+      - 50.0
+      - 0
+      - 142.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 20.0
+      - 140.0
+      - 35.9
+      - .nan
+      - 0
+      - 6.5
+      - .nan
+      - .nan
+      - 112.0
+      - 58.0
+      - 112.0
+      - 58.0
+      - 92.0
+      - 64.0
+      - .nan
+      - .nan
+      - 189.0
+      - 83.0
+      - 182.0
+      - 83.0
+      - 25.0
+      - 16.0
+      - 98.0
+      - 91.0
+      - .nan
+      - .nan
+      - 207.0
+      - 110.0
+      - 207.0
+      - 110.0
+      - 36.8
+      - 35.9
+      - .nan
+      - .nan
+      - 73.0
+      - 58.0
+      - 73.0
+      - 58.0
+      - 80.0
+      - 68.0
+      - .nan
+      - .nan
+      - 89.0
+      - 83.0
+      - 89.0
+      - 83.0
+      - 25.0
+      - 19.0
+      - 97.0
+      - 94.0
+      - .nan
+      - .nan
+      - 140.0
+      - 110.0
+      - 140.0
+      - 110.0
+      - 36.8
+      - 36.8
+      - 3.3
+      - 3.3
+      - 0.6
+    - - 18
+      - 143986
+      - 10104
+      - 69
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 152.4
+      - Floor
+      - Floor
+      - 108
+      - admit
+      - Med-Surg ICU
+      - 3.944444444
+      - 0
+      - .nan
+      - 2.6
+      - 102.0
+      - 206.01
+      - 0
+      - 0
+      - 0.4
+      - 57.0
+      - 2.0
+      - 0.28
+      - 3.0
+      - 5.0
+      - 0.0
+      - 4.0
+      - 147.0
+      - 102.0
+      - 27.3
+      - 1
+      - 42.0
+      - 63.0
+      - 63.0
+      - 52.0
+      - 7.47
+      - 8.0
+      - 139.0
+      - 36.22
+      - .nan
+      - 1
+      - 8.8
+      - 58.0
+      - 28.0
+      - 47.0
+      - 33.0
+      - 47.0
+      - 33.0
+      - 77.0
+      - 65.0
+      - 88.0
+      - 44.0
+      - 109.0
+      - 39.0
+      - 109.0
+      - 39.0
+      - 16.0
+      - 8.0
+      - 100.0
+      - 94.0
+      - 158.0
+      - 88.0
+      - 138.0
+      - 85.0
+      - 138.0
+      - 85.0
+      - 36.7
+      - 35.8
+      - .nan
+      - .nan
+      - 46.0
+      - 33.0
+      - 46.0
+      - 33.0
+      - 86.0
+      - 72.0
+      - .nan
+      - .nan
+      - 66.0
+      - 39.0
+      - 66.0
+      - 39.0
+      - .nan
+      - .nan
+      - 95.0
+      - 95.0
+      - .nan
+      - .nan
+      - 110.0
+      - 54.0
+      - 110.0
+      - 54.0
+      - .nan
+      - .nan
+      - 2.6
+      - 2.6
+      - 0.4
+    - - 19
+      - 138841
+      - 10104
+      - 67
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 170.2
+      - Floor
+      - Floor
+      - 108
+      - admit
+      - Med-Surg ICU
+      - 0.030555556
+      - 0
+      - .nan
+      - 1.9
+      - 307.0
+      - 701.02
+      - 0
+      - 0
+      - 0.6
+      - 22.0
+      - 1.1
+      - 0.4
+      - 1.0
+      - 1.0
+      - 0.0
+      - 1.0
+      - 216.0
+      - 102.0
+      - 36.0
+      - 1
+      - 122.0
+      - 25.0
+      - 25.0
+      - 76.0
+      - 7.55
+      - 29.0
+      - 135.0
+      - 36.0
+      - .nan
+      - 1
+      - 13.9
+      - .nan
+      - .nan
+      - 93.0
+      - 53.0
+      - 93.0
+      - 53.0
+      - 102.0
+      - 54.0
+      - .nan
+      - .nan
+      - 122.0
+      - 75.0
+      - 122.0
+      - 75.0
+      - 29.0
+      - 0.0
+      - 100.0
+      - 92.0
+      - .nan
+      - .nan
+      - 156.0
+      - 103.0
+      - 156.0
+      - 103.0
+      - 39.5
+      - 36.9
+      - .nan
+      - .nan
+      - 64.0
+      - 60.0
+      - 64.0
+      - 60.0
+      - 80.0
+      - 80.0
+      - .nan
+      - .nan
+      - 116.0
+      - 95.0
+      - 116.0
+      - 95.0
+      - 24.0
+      - 24.0
+      - 100.0
+      - 97.0
+      - .nan
+      - .nan
+      - 155.0
+      - 140.0
+      - 155.0
+      - 140.0
+      - 37.8
+      - 37.8
+      - 2.1
+      - 2.1
+      - 0.6
+    - - 20
+      - 139727
+      - 10104
+      - 55
+      - .nan
+      - 0
+      - Caucasian
+      - F
+      - 172.7
+      - Emergency Department
+      - Accident & Emergency
+      - 108
+      - admit
+      - Med-Surg ICU
+      - 0.003472222
+      - 0
+      - .nan
+      - .nan
+      - 122.0
+      - 703.03
+      - 0
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 4.0
+      - 6.0
+      - 0.0
+      - 5.0
+      - .nan
+      - 66.0
+      - .nan
+      - 0
+      - 64.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - 16.0
+      - .nan
+      - 36.94
+      - .nan
+      - 0
+      - .nan
+      - .nan
+      - .nan
+      - 88.0
+      - 60.0
+      - 88.0
+      - 60.0
+      - 80.0
+      - 70.0
+      - .nan
+      - .nan
+      - 124.0
+      - 64.0
+      - 124.0
+      - 64.0
+      - 20.0
+      - 16.0
+      - 100.0
+      - 94.0
+      - .nan
+      - .nan
+      - 154.0
+      - 97.0
+      - 154.0
+      - 97.0
+      - 37.4
+      - 36.9
+      - .nan
+      - .nan
+      - 61.0
+      - 61.0
+      - 61.0
+      - 61.0
+      - 70.0
+      - 70.0
+      - .nan
+      - .nan
+      - 82.0
+      - 82.0
+      - 82.0
+      - 82.0
+      - .nan
+      - .nan
+      - 100.0
+      - 100.0
+      - .nan
+      - .nan
+      - 97.0
+      - 97.0
+      - 97.0
+      - 97.0
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+      - .nan
+  artifact_path: v3io:///projects/{{run.project}}/artifacts
+  source: ''
+  subpath: ''
+  origin_url: ''
+  desired_state: online

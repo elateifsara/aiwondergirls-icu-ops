@@ -1,16 +1,23 @@
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder, OrdinalEncoder
+#from logging import getLogger, Formatter, StreamHandler, FileHandler, INFO, ERROR
 from sklearn.compose import make_column_selector as selector
 from sklearn.compose import ColumnTransformer
+#from sklearn.metrics import roc_auc_score
+#from sklearn.model_selection import KFold
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
 import os, gc, sys, time, random, math
+from contextlib import contextmanager
+#from matplotlib import pyplot as plt
+#from IPython.display import display
 from scipy import stats, special
+from sklearn import set_config
 from functools import partial
+#import lightgbm as lgb
+#import seaborn as sns
 import pandas as pd
 import typing as tp
 import numpy as np
-
-
-## This file has DataPreprocess class with all preprocessing utility functions which can be used
-## for train, test data preprocessing for WIDS ICU dataset
 
 
 class DataPreprocess:
@@ -51,8 +58,11 @@ class DataPreprocess:
         train['comorbidity_score'] = train['comorbidity_score'].fillna(0)
         train['gcs_sum'] = train['gcs_eyes_apache']+train['gcs_motor_apache']+train['gcs_verbal_apache']
         train['gcs_sum'] = train['gcs_sum'].fillna(0)
-        train['apache_2_diagnosis_type'] = train.apache_2_diagnosis.round(-1).fillna(-100).astype('int32')
-        train['apache_3j_diagnosis_type'] = train.apache_3j_diagnosis.round(-2).fillna(-100).astype('int32')
+        #train['apache_2_diagnosis_type'] = train.apache_2_diagnosis.round(-1).fillna(-100).astype('int32')
+        #train['apache_3j_diagnosis_type'] = train.apache_3j_diagnosis.round(-2).fillna(-100).astype('int32')
+        train['apache_2_diagnosis_type'] = train.apache_2_diagnosis.round(-1).fillna(0).astype('int32')
+        train['apache_3j_diagnosis_type'] = train.apache_3j_diagnosis.round(-2).fillna(0).astype('int32')
+        
         train['bmi_type'] = train.bmi.fillna(0).apply(lambda x: 5 * (round(int(x)/5)))
         train['height_type'] = train.height.fillna(0).apply(lambda x: 5 * (round(int(x)/5)))
         train['weight_type'] = train.weight.fillna(0).apply(lambda x: 5 * (round(int(x)/5)))
@@ -199,6 +209,10 @@ class DataPreprocess:
                                 np.where(train['apache_3j_diagnosis_type'] < 1000, 'Renal/Genitourinary' , 
                                 np.where(train['apache_3j_diagnosis_type'] < 1200, 'Musculoskeletal/Skin disease' , 'Operative Sub-Diagnosis Codes' ))))))))
                                         )
+        le = LabelEncoder()
+        train['apache_3j'] = le.fit_transform(train['apache_3j'])
+
+
         cols = ['apache_3j_diagnosis_x', 'apache_2_diagnosis_x', 'apache_3j_diagnosis_split1', 'apache_3j']
         for i in cols:
             train[i] = pd.to_numeric(train[i],errors='coerce')
