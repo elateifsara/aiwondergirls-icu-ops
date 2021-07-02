@@ -1,5 +1,5 @@
+Werkzeug==2.0.1
 pandas==1.2.4
-Flask==2.0.1
-matplotlib==3.4.2
+requests==2.24.0
 numpy==1.19.5
-scikit_learn==0.24.2
+Flask==2.0.1
