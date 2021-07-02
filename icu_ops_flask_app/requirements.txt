@@ -11,7 +11,7 @@ Flask
 Flask-Uploads==0.2.1
 gunicorn
 idna==2.10
-itsdangerous==2.0.1
+itsdangerous
 Jinja2==3.0.1
 jmespath==0.10.0
 joblib==1.0.1
