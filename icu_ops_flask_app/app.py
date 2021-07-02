@@ -5,7 +5,7 @@ import os
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from werkzeug.utils import secure_filename
 import requests
-from math import inf
+#from math import inf
 
 app = Flask(__name__) #Initialize the flask App
 app.config['UPLOAD_FOLDER'] = "./files"
