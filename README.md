@@ -14,10 +14,8 @@ The NLP dataset is created from research study papers available on the net. This
     Prevention and management of COVID-19 among patients with diabetes: an appraisal of the literature'
     https://pubmed.ncbi.nlm.nih.gov/32405783/
 
-The backend is developed on MLRun,Iguazio platforms using nuclio serveless functions. These functions are devloped to do datapreprocessing, training the model, serving the model with REST APIs. These functions can be run locally or on a cluster with auto_mount(). These are especially helpful for large scale distributed processing as well as computing. NLP Question Answering system using custom trained BERT model on the NLP dataset and LGBM,XGB models are serverless nuclio functions.   
-
-UI
- The User interface is built in python using stremlit library and access the REST apis of serving functions created in MLRUN platform. 
- To run the user interface, download the UI directory to local system and run 
+We developed the backend on MLRun and the Iguazio platform using nuclio serverless functions. These nuclio functions do data preprocessing, training the model, serving the model with REST APIs. The functions can be run locally or on a cluster with auto_mount(). These are especially helpful for large-scale distributed processing as well as computing. 
+The NLP Question Answering system using custom trained BERT model on the NLP dataset, and the LGBM, XGB models are serverless nuclio functions.
+The User interface(UI) is built in python using the Streamlit library. The UI can access the REST APIs of the serving functions created in the MLRun. To run the user interface, download the UI directory to the local system and run.
  
-        streamlit run icuops.py
+       streamlit run icuops.py
