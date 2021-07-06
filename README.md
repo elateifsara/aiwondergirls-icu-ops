@@ -1,3 +1,5 @@
+
+![Alt text](images/AIWonderGirlsLogo.png?raw=true)
 # aiwondergirls-ICU-OPS
 **_Help frontline clinicians triage patients in ICUs by rapidly assessing a patient's overall health for informed clinical decisions that will improve patient outcomes and relieve COVID19 ICU overload._**
 
