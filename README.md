@@ -19,4 +19,5 @@ The backend is developed on MLRun,Iguazio platforms using nuclio serveless funct
 UI
  The User interface is built in python using stremlit library and access the REST apis of serving functions created in MLRUN platform. 
  To run the user interface, download the UI directory to local system and run 
-        *streamlit run icuops.py
+ 
+        streamlit run icuops.py
