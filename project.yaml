@@ -325,6 +325,106 @@ spec:
     name: lightgbm-serving
   - url: hub://v2_model_tester
     name: live_tester
+  - name: qnaserving
+    spec:
+      kind: serving
+      metadata:
+        name: qnaserving
+        tag: ''
+        project: widsdb2
+        labels:
+          author: Aruna
+          framework: WQnAModel
+        categories:
+        - serving
+        - ml
+      spec:
+        command: ''
+        args: []
+        image: ''
+        entry_points:
+          load:
+            name: load
+            doc: ''
+            parameters:
+            - name: self
+              default: ''
+            outputs:
+            - default: ''
+            lineno: 19
+          predict:
+            name: predict
+            doc: ''
+            parameters:
+            - name: self
+              default: ''
+            - name: body
+              default: ''
+            outputs:
+            - default: ''
+            lineno: 25
+          init_context:
+            name: init_context
+            doc: ''
+            parameters:
+            - name: context
+              default: ''
+            outputs:
+            - default: ''
+            lineno: 39
+          handler:
+            name: handler
+            doc: ''
+            parameters:
+            - name: context
+              default: ''
+            - name: event
+              default: ''
+            outputs:
+            - default: ''
+            lineno: 42
+        description: QnAServing
+        min_replicas: 1
+        max_replicas: 4
+        env: []
+        base_spec:
+          apiVersion: nuclio.io/v1
+          kind: Function
+          metadata:
+            annotations:
+              nuclio.io/generated_by: function generated from /User/icuhack/qnaserving.ipynb
+            labels: {}
+            name: qnaserving
+          spec:
+            build:
+              baseImage: mlrun/mlrun
+              commands:
+              - pip install cdqa
+              functionSourceCode: IyBHZW5lcmF0ZWQgYnkgbnVjbGlvLmV4cG9ydC5OdWNsaW9FeHBvcnRlcgoKaW1wb3J0IG9zCmZyb20gYXN0IGltcG9ydCBsaXRlcmFsX2V2YWwKZnJvbSBjZHFhLnBpcGVsaW5lIGltcG9ydCBRQVBpcGVsaW5lCmZyb20gY2RxYS51dGlscy5kb3dubG9hZCBpbXBvcnQgZG93bmxvYWRfbW9kZWwKaW1wb3J0IGpvYmxpYgppbXBvcnQgbnVtcHkgYXMgbnAKZnJvbSBjbG91ZHBpY2tsZSBpbXBvcnQgbG9hZAppbXBvcnQgbWxydW4KCmltcG9ydCBzeXMKc3lzLnBhdGguYXBwZW5kKCcvdjNpby9wcm9qZWN0cy93aWRzZGIyL3V0aWwnKQoKCgpjbGFzcyBRbkFNb2RlbChtbHJ1bi5zZXJ2aW5nLlYyTW9kZWxTZXJ2ZXIpOgogICAgCiAgICBkZWYgbG9hZChzZWxmKToKICAgICAgICBtb2RlbF9maWxlLCBleHRyYV9kYXRhID0gc2VsZi5nZXRfbW9kZWwoJy5wa2wnKQogICAgICAgIHByaW50KG1vZGVsX2ZpbGUpCiAgICAgICAgc2VsZi5tb2RlbCA9IGpvYmxpYi5sb2FkKG1vZGVsX2ZpbGUsIG1tYXBfbW9kZT0ncicpCiAgICAgCgogICAgZGVmIHByZWRpY3Qoc2VsZiwgYm9keSk6CiAgICAgICAgdHJ5OgogICAgICAgICAgICBmZWF0cyA9IG5wLmFzYXJyYXkoYm9keVsnaW5wdXRzJ10pCiAgICAgICAgICAgIHByaW50KGZlYXRzKQogICAgICAgICAgICBxdWVyeSA9IGJvZHlbJ2lucHV0cyddWzBdWydxdWVyeSddCiAgICAgICAgICAgIHByaW50KHF1ZXJ5KQogICAgICAgICAgICBwcmVkaWN0aW9uID0gc2VsZi5tb2RlbC5wcmVkaWN0KHF1ZXJ5LCAzKQogICAgICAgICAgICBwcmludChwcmVkaWN0aW9uKQogICAgICAgICAgICByZXR1cm4gcHJlZGljdGlvbgogICAgICAgIGV4Y2VwdCBFeGNlcHRpb24gYXMgZXhjOgogICAgICAgICAgICByYWlzZSBFeGNlcHRpb24oZiJGYWlsZWQgdG8gcHJlZGljdCB7ZXhjfSIpCgoKZnJvbSBtbHJ1bi5ydW50aW1lcyBpbXBvcnQgbnVjbGlvX2luaXRfaG9vawpkZWYgaW5pdF9jb250ZXh0KGNvbnRleHQpOgogICAgbnVjbGlvX2luaXRfaG9vayhjb250ZXh0LCBnbG9iYWxzKCksICdzZXJ2aW5nX3YyJykKCmRlZiBoYW5kbGVyKGNvbnRleHQsIGV2ZW50KToKICAgIHJldHVybiBjb250ZXh0Lm1scnVuX2hhbmRsZXIoY29udGV4dCwgZXZlbnQpCg==
+              noBaseImagesPull: true
+            env: []
+            handler: qnaserving:handler
+            runtime: python:3.6
+            volumes: []
+        source: ''
+        function_kind: serving_v2
+        graph:
+          kind: router
+          full_event: true
+          routes:
+            bertqa_model:
+              kind: task
+              class_name: QnAModel
+              class_args:
+                model_path: /v3io/projects/widsdb2/util/bertqa.pkl
+              full_event: true
+        default_class: QnAModel
+        build:
+          commands: []
+          code_origin: QnAserving.ipynb
+        secret_sources: []
+        affinity: null
+      verbose: false
   workflows:
   - name: main
     path: workflow.py
